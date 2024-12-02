@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ghost",
-    "slug": "Ghost_App",
+    "slug": "Ghost",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
