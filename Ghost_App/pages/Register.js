@@ -1,42 +1,77 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { firestore } from '../firebase/firebaseConfig.js';
 import { serverTimestamp } from 'firebase/firestore';
-import * as SecureStore from 'expo-secure-store';  // Import SecureStore
+import * as SecureStore from 'expo-secure-store'; 
 import styles from '../styles/styles';
 import crypto from 'crypto-js';
 
 export default function RegisterPage({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
+  const [confirm, setConfirm] = useState('');
+  const [showConfirm,setShowConfirm] = useState(false);
+
+  const handleInputChange = (text, type) => {
+
+    const regex = /^[a-zA-Z0-9_.]+$/;
+
+  
+    if (regex.test(text) || text === '') {
+      if (type === 'username') {
+        setUsername(text);
+      } else if (type === 'password') {
+        setPassword(text);
+      }
+    }
+  };
 
   const handleRegister = async () => {
     if (!username || !password) {
-      Alert.alert('Hata', 'Kullanıcı adı ve şifre gerekli!');
+      setError('Kullanıcı adı ve şifre gerekli!');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000); 
+      return;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+    if (!usernameRegex.test(username)) {
+      setError('Kullanıcı veya şifre geçersiz karakter içeriyor.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000); 
       return;
     }
 
     try {
-      // Şifreyi hex formatında hashle
+      // Hexleme 
       const hashedPassword = crypto.SHA256(password).toString(crypto.enc.Hex);
 
-      // Firestore'a kullanıcı ekle
+      // Kullanıcı ekleme
       const userDoc = await firestore.collection('Users').add({
         username: username,
         password: hashedPassword,
-        createdAt: serverTimestamp(), // Correct usage of serverTimestamp
+        createdAt: serverTimestamp(),
       });
 
-      // Firestore'dan dönen ID'yi yerel veri tabanına kaydet
-      await SecureStore.setItemAsync('userId', userDoc.id);  // Store userId securely
+      // UserID'yi yerel veritabanına kaydet
+      await SecureStore.setItemAsync('userId', userDoc.id);
 
-      Alert.alert('Başarılı', 'Kayıt işlemi tamamlandı!');
-
-      // Başarılıysa giriş sayfasına yönlendir
-      navigation.navigate('Login');
-    } catch (error) {
+      // Başarı mesajı
+      setError('');
+      setShowError(false);
+      setConfirm('Kayıt Başarılı!');
+      setShowConfirm(true);
+      setTimeout(() => {
+        navigation.navigate('Login');
+      }, 3000); 
+    } 
+    catch (error) {
       console.error('Kayıt hatası:', error);
-      Alert.alert('Hata', 'Kayıt sırasında bir hata oluştu.');
+      setError('Kayıt sırasında bir hata oluştu.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000); 
     }
   };
 
@@ -44,14 +79,16 @@ export default function RegisterPage({ navigation }) {
     <View style={styles.container}>
       <View style={styles.card}>
         <Image source={require('../assets/whiteghost.png')} style={styles.logo} />
+        
         <Text style={styles.title}>Kayıt Ol</Text>
         <Text style={styles.subtitle}>Kullanıcı Bilgilerinizi Giriniz</Text>
+
         <TextInput
           style={styles.input}
           placeholder="Kullanıcı Adını Giriniz"
           placeholderTextColor="#6B6B6B"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={(text) => handleInputChange(text, 'username')} 
         />
         <TextInput
           style={styles.input}
@@ -59,11 +96,12 @@ export default function RegisterPage({ navigation }) {
           placeholderTextColor="#6B6B6B"
           secureTextEntry
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => handleInputChange(text, 'password')} 
         />
         <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
           <Text style={styles.loginButtonText}>Kayıt Ol</Text>
         </TouchableOpacity>
+
         <Text style={styles.signup}>
           Zaten bir hesabın var mı?
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -71,6 +109,9 @@ export default function RegisterPage({ navigation }) {
           </TouchableOpacity>
         </Text>
       </View>
+
+      {showConfirm && <Text style={styles.confirmText}>{confirm}</Text>}
+      {showError && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }

@@ -16,8 +16,10 @@ const firebaseConfig = {
 // Firebase'i başlat
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app();  // Daha önce başlatılmışsa mevcut instance'ı kullan
 }
 
-const firestore = firebase.firestore();
+const firestore = firebase.firestore();  // Firestore'u başlat
 
 export { firebase, firestore };

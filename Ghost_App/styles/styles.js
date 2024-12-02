@@ -74,4 +74,22 @@ export default StyleSheet.create({
         color: '#FFF',
         fontWeight: 'bold',
       },
+      errorText: {
+        color: '#FF3131',
+        fontWeight: 'bold',
+        position: 'absolute',
+        bottom: "5%",
+        left: 20,
+        right: 20,
+        textAlign: 'center',
+      },
+      confirmText: {
+        color: '#FF3131',
+        fontWeight: 'bold',
+        position: 'absolute',
+        bottom: "5%",
+        left: 20,
+        right: 20,
+        textAlign: 'center',
+      },
 });
