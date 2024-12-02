@@ -1,2 +1,5 @@
-#Ghost
-Anonim Sosyal Medya Platformu 
+
+# Ghost App
+
+Anonim Sosyal Medya Platformu
+
