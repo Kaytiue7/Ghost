@@ -1,2 +1,2 @@
 #Ghost
-Anonim Mesajlaşma Uygulaması
+Anonim Sosyal Medya Uygulaması
