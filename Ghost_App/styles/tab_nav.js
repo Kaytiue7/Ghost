@@ -5,19 +5,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabBar: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffff',
     borderTopWidth: 0,
     paddingBottom: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -5 },
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 10,
-    elevation: 5,
+    elevation: 20,
   },
   headerStyle: {
-    backgroundColor: '#ffffff',
-    shadowOpacity: 0,
-    elevation: 0,
+    backgroundColor: '#000',
+    shadowOpacity: 0.6,
+    shadowColor: '#ffffff',
+    elevation: 10,
   },
   headerImage: {
     width: 120,
@@ -55,6 +56,32 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 2,
   },
+  
+  
+  previewImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
+    resizeMode: 'contain',
+  },
+  closeButton: {
+    alignSelf: 'center',
+    padding: 10,
+    backgroundColor: '#FF5722',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalContent: {
+    backgroundColor: '#F9F9F9',
+    padding: 20,
+    borderRadius: 10,
+    borderWidth: 1,          // Kenarlık genişliğini belirler
+    borderColor: '#D8D8D8',     // Kenarlığın rengini belirler
+  },
+
   profileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -73,49 +100,56 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
+    borderBottomWidth: 2,
     paddingLeft: 10,
     marginBottom: 20,
   },
+  sendButton: {
+    flexDirection: 'row',
+    width:'40%',
+    alignItems: 'center',
+    justifyContent:'space-evenly',
+    backgroundColor: '#007bff', // Buton arka plan rengi
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    elevation: 3, // Gölgeleme
+    alignSelf: 'center', // Butonu ortalar
+  },
+  sendButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff', // Buton metninin rengi
+  },
+  sendIcon: {
+    
+  },
+  MainImage: {
+    width: '100%',
+    height: '300',
+    marginBottom: 30,
+
+  },
   imagePickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   imagePickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+    width: 50,               // Button size
+    height: 50,              // Button size
+    borderRadius: 25,        // Rounded corners for the button
+    backgroundColor: '#4CAF50', // Background color of the button
+    justifyContent: 'center', // Center the icon vertically
+    alignItems: 'center',    // Center the icon horizontally
+  },
+  imagePickerImage: {
+    fontSize: 30,  // Adjust the icon size (you can increase or decrease this value)
   },
   imagePickerText: {
     color: '#fff',
     marginLeft: 10,
   },
-  previewImage: {
-    width: '100%',
-    height: 200,
-    marginBottom: 20,
-    resizeMode: 'contain',
-  },
-  closeButton: {
-    alignSelf: 'center',
-    padding: 10,
-    backgroundColor: '#FF5722',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
+  
 });
 
 export default styles;

@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { firestore } from '../../firebase/firebaseConfig';
+import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import * as SecureStore from 'expo-secure-store'; // SecureStore ekledik
 
 export default function ModernPostsScreen() {
   const [posts, setPosts] = useState([]);
+  const [usernames, setUsernames] = useState({});
+  const [likedPosts, setLikedPosts] = useState({});
+
+  // Kullanıcı ID'sini al
+  const getUserId = async () => {
+    const storedUserId = await SecureStore.getItemAsync('userId');
+    return storedUserId;
+  };
 
   useEffect(() => {
     const unsubscribe = firestore
@@ -15,7 +25,26 @@ export default function ModernPostsScreen() {
             id: doc.id,
             ...doc.data(),
           }));
+
           setPosts(postsData);
+
+          postsData.forEach(async (post) => {
+            if (post.userId) {
+              const userDocRef = firestore.collection('Users').doc(post.userId);
+              const userDocSnapshot = await userDocRef.get();
+              if (userDocSnapshot.exists) {
+                setUsernames((prevUsernames) => ({
+                  ...prevUsernames,
+                  [post.id]: userDocSnapshot.data().username,
+                }));
+              } else {
+                setUsernames((prevUsernames) => ({
+                  ...prevUsernames,
+                  [post.id]: 'Anonim',
+                }));
+              }
+            }
+          });
         },
         (error) => {
           console.error('Error fetching posts:', error);
@@ -25,14 +54,41 @@ export default function ModernPostsScreen() {
     return () => unsubscribe();
   }, []);
 
+  const handleLike = async (postId) => {
+    const userId = await getUserId();
+    
+    if (!userId) {
+      console.log('Kullanıcı ID bulunamadı.');
+      return;
+    }
+
+    const postRef = firestore.collection('Posts').doc(postId);
+    const usersLikedRef = postRef.collection('usersLiked');
+    const userLikeDoc = usersLikedRef.doc(userId);
+
+    const docSnapshot = await userLikeDoc.get();
+    
+    // Eğer kullanıcı daha önce beğenmişse, beğenisini kaldır
+    if (docSnapshot.exists) {
+      await userLikeDoc.delete();
+    } else {
+      await userLikeDoc.set({
+        userId: userId,
+        timestamp: new Date(),
+      });
+    }
+  };
+
   const renderPost = ({ item }) => {
-    // createdAt alanının null olmadığını kontrol edelim
     const createdAt = item.createdAt?.seconds
       ? new Date(item.createdAt.seconds * 1000).toLocaleString()
       : 'Bilinmeyen Tarih';
 
+    const username = usernames[item.id];
+
     return (
       <View style={styles.postContainer}>
+        {/* Profil Fotoğrafı */}
         <Image
           source={{
             uri: item.profilePicture ||
@@ -41,9 +97,39 @@ export default function ModernPostsScreen() {
           style={styles.profileImage}
         />
         <View style={styles.postContent}>
-          <Text style={styles.username}>@{item.userId || 'Anonim'}</Text>
-          <Text style={styles.postText}>{item.text || 'Metin bulunamadı.'}</Text>
-          <Text style={styles.timestamp}>{createdAt}</Text>
+          {/* Kullanıcı Adı ve İçerik */}
+          <View style={styles.usernameContainer}>  
+            <Text style={styles.username}>@{username}</Text>
+            <Text style={styles.timestamp}>{createdAt}</Text>
+          </View>
+
+          {item.text && (
+            <Text style={styles.postText}>{item.text}</Text>
+          )}
+
+          {item.imageUri && (
+            <Image source={{ uri: item.imageUri }} style={styles.postImage} />
+          )}
+          
+          <View style={styles.footer}>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity onPress={() => handleLike(item.id)}>
+                <Ionicons name="heart-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="bookmark-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="share-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
     );
@@ -63,43 +149,65 @@ export default function ModernPostsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
-    padding: 10,
+    backgroundColor: '#101010',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 10,
   },
   postContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
+    backgroundColor: '#1C1C1E',
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
     shadowRadius: 5,
-    elevation: 2,
+    elevation: 3,
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 15,
   },
   postContent: {
     flex: 1,
   },
+  usernameContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
   username: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
-  },
-  postText: {
-    fontSize: 14,
-    color: '#555',
-    marginVertical: 5,
+    color: '#FFF',
   },
   timestamp: {
     fontSize: 12,
     color: '#888',
-    textAlign: 'right',
+  },
+  postText: {
+    fontSize: 14,
+    color: '#D1D1D1',
+    marginBottom: 10,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    gap: 15,
   },
 });

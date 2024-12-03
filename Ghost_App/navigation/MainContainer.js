@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import { firestore } from '../firebase/firebaseConfig';
 import * as SecureStore from 'expo-secure-store';
 import { serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 
 import PostScreen from './screens/PostScreen';
 import SearchScreen from './screens/SearchScreen';
 import MessageScreen from './screens/MessageScreen';
 import AccountScreen from './screens/AccountScreen';
 
-import styles from '../styles/tab_nav'; // Styles dosyasını import edin
+import styles from '../styles/tab_nav';
 
 const postName = 'Gönderiler';
 const searchName = 'Arama';
@@ -23,9 +25,10 @@ const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [text, setText] = useState(''); // Metin giriş değeri
-  const [username, setUsername] = useState(''); // Kullanıcı adı
-  const [userId, setUserId] = useState(null); // Kullanıcı ID
+  const [text, setText] = useState('');
+  const [imageUri, setImageUri] = useState(null); // Fotoğraf URI
+  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState(null);
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -54,22 +57,74 @@ export default function MainContainer() {
     fetchData();
   }, []);
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Allow both images and videos
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri); // Get the URI of the selected image or video
+    }
+  };
+
+  const takePhoto = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Allow both images and videos
+      allowsEditing: true,
+      aspect: [4, 3], // Set aspect ratio to 4:3
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri); // Get the URI of the captured image or video
+    }
+  };
+
   const savePost = async () => {
-    if (text.trim() === '' || !userId) {
-      console.log('Metin boş veya kullanıcı kimliği eksik.');
+    if ((text.trim() === '' && uploadedImageUrl==='') || !userId) {
+      Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
       return;
     }
-
+  
+    let uploadedImageUrl = null;
+  
+    if (imageUri) {
+      try {
+        const storage = getStorage();
+        const uniqueFileName = `${userId}_${Date.now()}`; // Benzersiz dosya adı
+        const imageRef = ref(storage, `PostFile/${uniqueFileName}`);
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+  
+        // Fotoğrafı Storage'a yükleyin
+        await uploadBytes(imageRef, blob);
+        console.log('Fotoğraf başarıyla yüklendi.');
+  
+        // Yüklenen fotoğrafın URL'sini alın
+        uploadedImageUrl = await getDownloadURL(imageRef);
+        console.log('Fotoğraf URL:', uploadedImageUrl);
+      } catch (error) {
+        console.error('Fotoğraf yüklenirken hata oluştu:', error);
+        Alert.alert('Hata', 'Fotoğraf yüklenirken bir sorun oluştu.');
+        return;
+      }
+    }
+  
     const postData = {
       text,
       userId,
       createdAt: serverTimestamp(),
+      imageUri: uploadedImageUrl, // Yüklenen fotoğrafın URL'sini kaydedin
     };
-
+  
     try {
       await firestore.collection('Posts').add(postData);
       console.log('Gönderi başarıyla kaydedildi:', postData);
-      setText(''); // Giriş alanını temizle
+      setText('');
+      setImageUri(null);
+      toggleModal();
     } catch (error) {
       console.error('Gönderi kaydedilirken hata oluştu:', error);
     }
@@ -102,7 +157,7 @@ export default function MainContainer() {
           headerStyle: styles.headerStyle,
           headerTitle: () => (
             <Image
-              source={require('../assets/icon.png')}
+              source={require('../assets/whiteghost.png')}
               style={styles.headerImage}
             />
           ),
@@ -115,34 +170,58 @@ export default function MainContainer() {
         <Tab.Screen name={accountName} component={AccountScreen} options={{ headerShown: true }} />
       </Tab.Navigator>
 
-      {/* Modal (Pop-up) */}
       <Modal
         isVisible={isModalVisible}
         onBackdropPress={toggleModal}
-        backdropColor="black"
-        backdropOpacity={0.7}
+        backdropOpacity={0}
         style={styles.modalStyle}
       >
         <View style={styles.modalContent}>
           <View style={styles.profileInfo}>
-            <Image style={styles.profileImage} />
-            <Text style={styles.username}>{username}</Text>
+            <Image
+              source={{
+                uri:'https://trthaberstatic.cdn.wp.trt.com.tr/resimler/1844000/ismail-kartal-1844308.jpg',
+              }}
+              style={styles.profileImage}
+            />
+            <Text style={styles.username}>@{username}</Text>
           </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Bir şeyler yazın..."
-            value={text}
-            onChangeText={setText}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Bir şeyler yazın..."
+              value={text}
+              onChangeText={setText}
+            />
+          </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={savePost}>
-            <Text style={styles.saveButtonText}>Kaydet</Text>
+          {imageUri && (
+            <Image
+              source={{
+                uri: imageUri,
+              }}
+              style={styles.MainImage}
+            />
+          )}
+
+          <View style={styles.imagePickerContainer}>
+            <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+              <Ionicons name="image" size={30} color="white" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.imagePickerButton} onPress={takePhoto}>
+              <Ionicons name="camera" size={30} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.sendButton} onPress={savePost}>
+            <Text style={styles.sendButtonText}>Gönder</Text>
+            <Ionicons name="send" size={18} color="#fff" style={styles.sendIcon} />
           </TouchableOpacity>
         </View>
       </Modal>
 
-      {/* Floating Action Button */}
       <TouchableOpacity style={styles.fabButton} onPress={toggleModal}>
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>

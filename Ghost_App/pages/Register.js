@@ -59,12 +59,12 @@ export default function RegisterPage({ navigation }) {
       await SecureStore.setItemAsync('userId', userDoc.id);
 
       // Başarı mesajı
-      setError('');
+      setError
       setShowError(false);
       setConfirm('Kayıt Başarılı!');
       setShowConfirm(true);
       setTimeout(() => {
-        navigation.navigate('Login');
+        navigation.navigate('AddProfilePicture');
       }, 3000); 
     } 
     catch (error) {
