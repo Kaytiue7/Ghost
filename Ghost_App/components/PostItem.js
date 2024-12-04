@@ -1,38 +1,51 @@
-// components/PostItem.js
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Video } from 'expo-av';
 
-export default function PostItem({ post, username, profilePicture }) {
+export default function PostItem({ post, username, profilePicture, isFocused }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isFocused) {
+        videoRef.current.playAsync();
+      } else {
+        videoRef.current.pauseAsync();
+      }
+    }
+  }, [isFocused]);
+
   const createdAt = post.createdAt?.seconds
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
     : 'Bilinmeyen Tarih';
 
   return (
     <View style={styles.postContainer}>
-      {/* Profil Fotoğrafı */}
-      <Image
-        source={{
-          uri: profilePicture,
-        }}
-        style={styles.profileImage}
-      />
+      <Image source={{ uri: profilePicture }} style={styles.profileImage} />
       <View style={styles.postContent}>
-        {/* Kullanıcı Adı ve Zaman */}
         <View style={styles.usernameContainer}>
           <Text style={styles.username}>@{username}</Text>
           <Text style={styles.timestamp}>{createdAt}</Text>
         </View>
 
-        {/* Gönderi Metni */}
         {post.text && <Text style={styles.postText}>{post.text}</Text>}
 
-        {/* Gönderi Görseli */}
         {post.imageUri && (
           <Image source={{ uri: post.imageUri }} style={styles.postImage} />
         )}
 
-        {/* Alt Kısım (İkonlar) */}
+        {post.videoUri && (
+          <Video
+          ref={videoRef}
+          style={styles.postVideo}
+          source={{ uri: post.videoUri }}
+          resizeMode="contain"
+          useNativeControls 
+          shouldPlay={true} // Başlangıçta otomatik oynatmayı kapalı tutar
+        />
+        )}
+
         <View style={styles.footer}>
           <View style={styles.iconContainer}>
             <TouchableOpacity>
@@ -100,8 +113,14 @@ const styles = StyleSheet.create({
   },
   postImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
+    height: 350,
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  postVideo: {
+    width: '100%',
+    height: 350,
+    borderRadius: 20,
     marginBottom: 10,
   },
   footer: {

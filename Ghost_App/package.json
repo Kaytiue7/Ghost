@@ -14,7 +14,7 @@
     "@react-navigation/stack": "^7.0.11",
     "crypto-js": "^4.2.0",
     "expo": "~52.0.11",
-    "expo-av": "^15.0.1",
+    "expo-av": "~15.0.1",
     "expo-camera": "^16.0.7",
     "expo-image-picker": "~16.0.3",
     "expo-permissions": "^14.4.0",

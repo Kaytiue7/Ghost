@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { Video } from 'expo-av'; // expo-av'den Video bileşenini import ediyoruz
 
 import PostScreen from './screens/PostScreen';
 import SearchScreen from './screens/SearchScreen';
@@ -29,6 +30,7 @@ export default function MainContainer() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [text, setText] = useState('');
   const [imageUri, setImageUri] = useState(null);
+  const [videoUri, setVideoUri] = useState(null); // Yeni state video URI'si için
   const [username, setUsername] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -71,30 +73,33 @@ export default function MainContainer() {
 
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
+      setVideoUri(null); // Video seçildiğinde fotoğrafı sıfırla
     }
   };
 
-  const takePhoto = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const pickVideo = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      setVideoUri(result.assets[0].uri);
+      setImageUri(null); // Video seçildiğinde fotoğrafı sıfırla
     }
   };
 
   const savePost = async () => {
-    if ((text.trim() === '' && !imageUri) || !userId) {
+    if ((text.trim() === '' && !imageUri && !videoUri) || !userId) {
       Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
       return;
     }
 
     let uploadedImageUrl = null;
+    let uploadedVideoUrl = null;
 
+    // Fotoğraf yükleme
     if (imageUri) {
       try {
         const storage = getStorage();
@@ -115,11 +120,33 @@ export default function MainContainer() {
       }
     }
 
+    // Video yükleme
+    if (videoUri) {
+      try {
+        const storage = getStorage();
+        const uniqueFileName = `${userId}_${Date.now()}`;
+        const videoRef = ref(storage, `_postFile/${uniqueFileName}`);
+        const response = await fetch(videoUri);
+        const blob = await response.blob();
+
+        await uploadBytes(videoRef, blob);
+        console.log('Video başarıyla yüklendi.');
+
+        uploadedVideoUrl = await getDownloadURL(videoRef);
+        console.log('Video URL:', uploadedVideoUrl);
+      } catch (error) {
+        console.error('Video yüklenirken hata oluştu:', error);
+        Alert.alert('Hata', 'Video yüklenirken bir sorun oluştu.');
+        return;
+      }
+    }
+
     const postData = {
       text,
       userId,
       createdAt: serverTimestamp(),
       imageUri: uploadedImageUrl,
+      videoUri: uploadedVideoUrl, // Video URL'sini kaydediyoruz
     };
 
     try {
@@ -127,6 +154,7 @@ export default function MainContainer() {
       console.log('Gönderi başarıyla kaydedildi:', postData);
       setText('');
       setImageUri(null);
+      setVideoUri(null); // Video ve fotoğraf sıfırlanıyor
       toggleModal();
     } catch (error) {
       console.error('Gönderi kaydedilirken hata oluştu:', error);
@@ -166,17 +194,10 @@ export default function MainContainer() {
             />
           ),
           headerTitleAlign: 'center',
-        })}
-      >
+        })}>
         <Tab.Screen name={postName} component={PostScreen} options={{ headerShown: true }} />
         <Tab.Screen name={searchName} component={SearchScreen} options={{ headerShown: true }} />
-        <Tab.Screen
-          name={emptyName}
-          component={EmptyScreen}  // Yeni ekranı buraya ekliyoruz
-          options={{
-            tabBarStyle: { display: 'none' },  // Butonu gizlemek için bu satırı ekliyoruz
-          }}
-        />
+        <Tab.Screen name={emptyName} component={EmptyScreen} options={{ tabBarStyle: { display: 'none' } }} />
         <Tab.Screen name={messageName} component={MessageScreen} options={{ headerShown: true }} />
         <Tab.Screen name={accountName} component={AccountScreen} options={{ headerShown: true }} />
       </Tab.Navigator>
@@ -190,9 +211,7 @@ export default function MainContainer() {
         <View style={styles.modalContent}>
           <View style={styles.profileInfo}>
             <Image
-              source={{
-                uri: profileImage 
-              }}
+              source={{ uri: profileImage }}
               style={styles.profileImage}
             />
             <Text style={styles.username}>@{username}</Text>
@@ -208,31 +227,36 @@ export default function MainContainer() {
           </View>
 
           {imageUri && (
-            <Image
-              source={{
-                uri: imageUri,
-              }}
-              style={styles.MainImage}
-            />
+            <View style={styles.imagePreview}>
+              <Image source={{ uri: imageUri }} style={styles.MainImage} />
+            </View>
+          )}
+          
+          {videoUri && (
+            <View>
+              <Video style={styles.MainImage}
+                source={{ uri: videoUri }} // Seçilen video URI'si
+                isLooping
+                resizeMode="contain"
+                useNativeControls
+              />
+            </View>
           )}
 
           <View style={styles.imagePickerContainer}>
-            <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
-              <Ionicons name="image" size={30} color="white" />
+            <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
+              <Ionicons name="image-outline" size={30} color="white" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.imagePickerButton} onPress={takePhoto}>
-              <Ionicons name="camera" size={30} color="white" />
+            <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
+              <Ionicons name="videocam-outline" size={30} color="white" />
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.sendButton} onPress={savePost}>
-            <Text style={styles.sendButtonText}>Gönder</Text>
-            <Ionicons name="send" size={18} color="#fff" style={styles.sendIcon} />
-          </TouchableOpacity>
+          <TouchableOpacity onPress={savePost} style={styles.sendButton}>
+              <Text style={styles.sendButtonText}>Paylaş</Text>
+            </TouchableOpacity>
         </View>
       </Modal>
-
       <TouchableOpacity style={styles.fabButton} onPress={toggleModal}>
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
