@@ -18,41 +18,46 @@ export default function LoginPage({ navigation }) {
       setTimeout(() => setShowError(false), 5000); 
       return;
     }
-
+  
     try {
       // Girilen şifreyi hashle
       const hashedPassword = crypto.SHA256(password).toString(crypto.enc.Hex);
       console.log("Hashlenmiş şifre (kayıt ve girişteki şifre):", hashedPassword);
-
+  
       const userSnapshot = await firestore
         .collection('Users')
         .where('username', '==', username)
         .get();
-
+  
       if (userSnapshot.empty) {
         setError('Kullanıcı bulunamadı.');
         setShowError(true);
         setTimeout(() => setShowError(false), 5000);
         return;
       }
-
-      // Hashlenmiş şifreyi kontrol et
+  
+      // Hashlenmiş şifreyi ve validity'yi kontrol et
       let userId;
+      let isValid = false; // Kullanıcı valid mi?
       userSnapshot.forEach(doc => {
         const userData = doc.data();
         if (userData.password === hashedPassword) {
           userId = doc.id;
+          isValid = userData.validity !== false; // Validity kontrolü
         }
       });
-
-      if (userId) {
+  
+      if (userId && isValid) {
         // userID'yi yerel depolamaya kaydet
         await SecureStore.setItemAsync('userId', userId);
         
         // MainContainer sayfasına yönlendir
         navigation.navigate('MainContainer');
-      } 
-      else {
+      } else if (!isValid) {
+        setError('Hesabınız geçerli değil. Lütfen yöneticinizle iletişime geçin.');
+        setShowError(true);
+        setTimeout(() => setShowError(false), 5000);
+      } else {
         setError('Şifre yanlış.');
         setShowError(true);
         setTimeout(() => setShowError(false), 5000);
@@ -65,6 +70,7 @@ export default function LoginPage({ navigation }) {
       setTimeout(() => setShowError(false), 5000);
     }
   };
+  
 
   return (
     <View style={styles.container}>

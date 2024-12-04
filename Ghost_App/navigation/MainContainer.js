@@ -13,6 +13,7 @@ import PostScreen from './screens/PostScreen';
 import SearchScreen from './screens/SearchScreen';
 import MessageScreen from './screens/MessageScreen';
 import AccountScreen from './screens/AccountScreen';
+import EmptyScreen from './screens/EmptyScreen';
 
 import styles from '../styles/tab_nav';
 
@@ -20,6 +21,7 @@ const postName = 'Gönderiler';
 const searchName = 'Arama';
 const messageName = 'Mesajlar';
 const accountName = 'Hesap';
+const emptyName = ' ';
 
 const Tab = createBottomTabNavigator();
 
@@ -146,6 +148,7 @@ export default function MainContainer() {
               iconName = focused ? 'search' : 'search-outline';
             } else if (rn === messageName) {
               iconName = focused ? 'mail' : 'mail-outline';
+            
             } else if (rn === accountName) {
               iconName = focused ? 'person-circle' : 'person-circle-outline';
             }
@@ -153,7 +156,7 @@ export default function MainContainer() {
             return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: '#000',
-          tabBarInactiveTintColor: '#B0BEC5',
+          tabBarInactiveTintColor: '#555555',
           tabBarStyle: styles.tabBar,
           headerStyle: styles.headerStyle,
           headerTitle: () => (
@@ -167,6 +170,13 @@ export default function MainContainer() {
       >
         <Tab.Screen name={postName} component={PostScreen} options={{ headerShown: true }} />
         <Tab.Screen name={searchName} component={SearchScreen} options={{ headerShown: true }} />
+        <Tab.Screen
+          name={emptyName}
+          component={EmptyScreen}  // Yeni ekranı buraya ekliyoruz
+          options={{
+            tabBarStyle: { display: 'none' },  // Butonu gizlemek için bu satırı ekliyoruz
+          }}
+        />
         <Tab.Screen name={messageName} component={MessageScreen} options={{ headerShown: true }} />
         <Tab.Screen name={accountName} component={AccountScreen} options={{ headerShown: true }} />
       </Tab.Navigator>

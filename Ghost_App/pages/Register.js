@@ -51,6 +51,7 @@ export default function RegisterPage({ navigation }) {
         username: username,
         password: hashedPassword,
         createdAt: serverTimestamp(),
+        validity: true,
       });
 
       // UserID'yi yerel veritabanına kaydet
