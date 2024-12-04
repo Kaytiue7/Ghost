@@ -1,24 +1,68 @@
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect here
+import React, { useState, useEffect } from 'react';
 import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { firestore } from '../firebase/firebaseConfig';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as SecureStore from 'expo-secure-store';  // SecureStore import edildi
 
-export default function AddProfilePicture() {
-  const [imageUri, setImageUri] = useState(null); // Declare the state inside the functional component
+export default function AddProfilePicture({ navigation }) {
+  const [imageUri, setImageUri] = useState(null); 
+  const [userId, setUserId] = useState(null);
 
+  // Fetch userId from SecureStore on component mount
   useEffect(() => {
-    // Any side-effects can be handled here (empty array means this runs once when component mounts)
+    const fetchUserId = async () => {
+      const userId = await SecureStore.getItemAsync('userId');
+      if (userId) {
+        setUserId(userId); // Set userId state
+      }
+    };
+
+    fetchUserId();
   }, []);
 
+  // Skip button logic
+  const skipButton = () => {
+    navigation.navigate('MainContainer');
+  };
+
+  // Image picker logic
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Only allow images
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, 
       allowsEditing: true,
-      aspect: [1, 1], // Ensure a 1:1 ratio (square aspect ratio)
+      aspect: [1, 1], 
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri); // If an image was selected, update the URI
+      setImageUri(result.assets[0].uri); // Update URI if an image is selected
+    }
+  };
+
+  // Save button logic
+  const saveButton = async () => {
+    if (userId && imageUri) {
+      try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+
+        const filename = `_userProfilePicture/${userId}.jpg`;
+        const storageRef = ref(getStorage(), filename);
+
+        await uploadBytes(storageRef, blob);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await firestore.collection('Users').doc(userId).update({
+          profilePicture: downloadURL
+        });
+
+        navigation.navigate('MainContainer'); // Navigate to the main content screen
+      } catch (error) {
+        console.error('Hata oluştu:', error);
+      }
+    } else {
+      console.log('Görsel seçilmedi veya kullanıcı ID bulunamadı.');
     }
   };
 
@@ -32,10 +76,10 @@ export default function AddProfilePicture() {
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.skipButton}>
+        <TouchableOpacity style={styles.skipButton} onPress={skipButton}>
           <Text style={styles.buttonText}>Geç</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.continueButton}>
+        <TouchableOpacity style={styles.continueButton} onPress={saveButton}>
           <Text style={styles.buttonText}>Devam</Text>
         </TouchableOpacity>
       </View>
@@ -53,13 +97,8 @@ const styles = StyleSheet.create({
   image: {
     width: 300,
     height: 300,
-    resizeMode: 'contain', // Ensures the image fits within the container
-    borderRadius: 150, // Optional: make it a circular image
-    shadowColor: '#ffffff',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 20,
-    elevation: 20,
+    resizeMode: 'contain', 
+    borderRadius: 150, 
   },
   buttonContainer: {
     flexDirection: 'row',

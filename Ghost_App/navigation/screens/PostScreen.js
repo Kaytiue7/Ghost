@@ -6,13 +6,15 @@ import * as SecureStore from 'expo-secure-store'; // SecureStore ekledik
 
 export default function ModernPostsScreen() {
   const [posts, setPosts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [usernames, setUsernames] = useState({});
+  const [profilePictures, setProfilePicture] = useState({});
   const [likedPosts, setLikedPosts] = useState({});
 
   // Kullanıcı ID'sini al
   const getUserId = async () => {
-    const storedUserId = await SecureStore.getItemAsync('userId');
-    return storedUserId;
+    const userId = await SecureStore.getItemAsync('userId');
+    return userId;
   };
 
   useEffect(() => {
@@ -25,9 +27,9 @@ export default function ModernPostsScreen() {
             id: doc.id,
             ...doc.data(),
           }));
-
+  
           setPosts(postsData);
-
+  
           postsData.forEach(async (post) => {
             if (post.userId) {
               const userDocRef = firestore.collection('Users').doc(post.userId);
@@ -37,10 +39,9 @@ export default function ModernPostsScreen() {
                   ...prevUsernames,
                   [post.id]: userDocSnapshot.data().username,
                 }));
-              } else {
-                setUsernames((prevUsernames) => ({
-                  ...prevUsernames,
-                  [post.id]: 'Anonim',
+                setProfilePicture((prevProfilePictures) => ({
+                  ...prevProfilePictures,
+                  [post.id]: userDocSnapshot.data().profilePicture,
                 }));
               }
             }
@@ -50,70 +51,43 @@ export default function ModernPostsScreen() {
           console.error('Error fetching posts:', error);
         }
       );
-
+  
     return () => unsubscribe();
   }, []);
-
-  const handleLike = async (postId) => {
-    const userId = await getUserId();
-    
-    if (!userId) {
-      console.log('Kullanıcı ID bulunamadı.');
-      return;
-    }
-
-    const postRef = firestore.collection('Posts').doc(postId);
-    const usersLikedRef = postRef.collection('usersLiked');
-    const userLikeDoc = usersLikedRef.doc(userId);
-
-    const docSnapshot = await userLikeDoc.get();
-    
-    // Eğer kullanıcı daha önce beğenmişse, beğenisini kaldır
-    if (docSnapshot.exists) {
-      await userLikeDoc.delete();
-    } else {
-      await userLikeDoc.set({
-        userId: userId,
-        timestamp: new Date(),
-      });
-    }
-  };
-
-  const renderPost = ({ item }) => {
-    const createdAt = item.createdAt?.seconds
-      ? new Date(item.createdAt.seconds * 1000).toLocaleString()
+  
+  const renderPost = ({ item: post }) => {
+    if (!post) return null;
+  
+    const createdAt = post.createdAt?.seconds
+      ? new Date(post.createdAt.seconds * 1000).toLocaleString()
       : 'Bilinmeyen Tarih';
-
-    const username = usernames[item.id];
-
+  
+    const username = usernames[post.id];
+    const profilePicture = profilePictures[post.id];
+  
     return (
       <View style={styles.postContainer}>
         {/* Profil Fotoğrafı */}
         <Image
           source={{
-            uri: item.profilePicture ||
-              'https://trthaberstatic.cdn.wp.trt.com.tr/resimler/1844000/ismail-kartal-1844308.jpg',
-          }}
-          style={styles.profileImage}
+            uri: profilePicture }}
+            style={styles.profileImage}
         />
         <View style={styles.postContent}>
-          {/* Kullanıcı Adı ve İçerik */}
-          <View style={styles.usernameContainer}>  
+          <View style={styles.usernameContainer}>
             <Text style={styles.username}>@{username}</Text>
             <Text style={styles.timestamp}>{createdAt}</Text>
           </View>
-
-          {item.text && (
-            <Text style={styles.postText}>{item.text}</Text>
+  
+          {post.text && <Text style={styles.postText}>{post.text}</Text>}
+  
+          {post.imageUri && (
+            <Image source={{ uri: post.imageUri }} style={styles.postImage} />
           )}
-
-          {item.imageUri && (
-            <Image source={{ uri: item.imageUri }} style={styles.postImage} />
-          )}
-          
+  
           <View style={styles.footer}>
             <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={() => handleLike(item.id)}>
+              <TouchableOpacity>
                 <Ionicons name="heart-outline" size={24} color="#FFF" />
               </TouchableOpacity>
               <TouchableOpacity>
@@ -134,12 +108,17 @@ export default function ModernPostsScreen() {
       </View>
     );
   };
-
+   
   return (
     <View style={styles.container}>
       <FlatList
         data={posts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(post) => post.id}
+        renderItem={renderPost}
+      />
+       <FlatList
+        data={users}
+        keyExtractor={(user) => user.id}
         renderItem={renderPost}
       />
     </View>

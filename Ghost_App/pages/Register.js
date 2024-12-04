@@ -12,13 +12,11 @@ export default function RegisterPage({ navigation }) {
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
   const [confirm, setConfirm] = useState('');
-  const [showConfirm,setShowConfirm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleInputChange = (text, type) => {
-
     const regex = /^[a-zA-Z0-9_.]+$/;
 
-  
     if (regex.test(text) || text === '') {
       if (type === 'username') {
         setUsername(text);
@@ -38,7 +36,7 @@ export default function RegisterPage({ navigation }) {
 
     const usernameRegex = /^[a-zA-Z0-9_.]+$/;
     if (!usernameRegex.test(username)) {
-      setError('Kullanıcı veya şifre geçersiz karakter içeriyor.');
+      setError('Kullanıcı adı veya şifre geçersiz karakter içeriyor.');
       setShowError(true);
       setTimeout(() => setShowError(false), 5000); 
       return;
@@ -59,15 +57,14 @@ export default function RegisterPage({ navigation }) {
       await SecureStore.setItemAsync('userId', userDoc.id);
 
       // Başarı mesajı
-      setError
+      setError('');  // Hata mesajını sıfırla
       setShowError(false);
       setConfirm('Kayıt Başarılı!');
       setShowConfirm(true);
       setTimeout(() => {
-        navigation.navigate('AddProfilePicture');
+        navigation.navigate('AddProfilePicture');  // Başarıyla kayıt olduktan sonra yönlendirme
       }, 3000); 
-    } 
-    catch (error) {
+    } catch (error) {
       console.error('Kayıt hatası:', error);
       setError('Kayıt sırasında bir hata oluştu.');
       setShowError(true);

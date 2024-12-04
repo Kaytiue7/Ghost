@@ -26,8 +26,9 @@ const Tab = createBottomTabNavigator();
 export default function MainContainer() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [text, setText] = useState('');
-  const [imageUri, setImageUri] = useState(null); // Fotoğraf URI
+  const [imageUri, setImageUri] = useState(null);
   const [username, setUsername] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
   const [userId, setUserId] = useState(null);
 
   const toggleModal = () => {
@@ -44,7 +45,9 @@ export default function MainContainer() {
           const userDocSnapshot = await userDocRef.get();
 
           if (userDocSnapshot.exists) {
-            setUsername(userDocSnapshot.data().username);
+            const userData = userDocSnapshot.data();
+            setUsername(userData.username);
+            setProfileImage(userData.profilePicture || 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png',); // Varsayılan URL
           } else {
             console.log('Kullanıcı bilgisi bulunamadı.');
           }
@@ -59,50 +62,48 @@ export default function MainContainer() {
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Allow both images and videos
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri); // Get the URI of the selected image or video
+      setImageUri(result.assets[0].uri);
     }
   };
 
   const takePhoto = async () => {
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Allow both images and videos
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3], // Set aspect ratio to 4:3
+      aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri); // Get the URI of the captured image or video
+      setImageUri(result.assets[0].uri);
     }
   };
 
   const savePost = async () => {
-    if ((text.trim() === '' && uploadedImageUrl==='') || !userId) {
+    if ((text.trim() === '' && !imageUri) || !userId) {
       Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
       return;
     }
-  
+
     let uploadedImageUrl = null;
-  
+
     if (imageUri) {
       try {
         const storage = getStorage();
-        const uniqueFileName = `${userId}_${Date.now()}`; // Benzersiz dosya adı
-        const imageRef = ref(storage, `PostFile/${uniqueFileName}`);
+        const uniqueFileName = `${userId}_${Date.now()}`;
+        const imageRef = ref(storage, `_postFile/${uniqueFileName}`);
         const response = await fetch(imageUri);
         const blob = await response.blob();
-  
-        // Fotoğrafı Storage'a yükleyin
+
         await uploadBytes(imageRef, blob);
         console.log('Fotoğraf başarıyla yüklendi.');
-  
-        // Yüklenen fotoğrafın URL'sini alın
+
         uploadedImageUrl = await getDownloadURL(imageRef);
         console.log('Fotoğraf URL:', uploadedImageUrl);
       } catch (error) {
@@ -111,14 +112,14 @@ export default function MainContainer() {
         return;
       }
     }
-  
+
     const postData = {
       text,
       userId,
       createdAt: serverTimestamp(),
-      imageUri: uploadedImageUrl, // Yüklenen fotoğrafın URL'sini kaydedin
+      imageUri: uploadedImageUrl,
     };
-  
+
     try {
       await firestore.collection('Posts').add(postData);
       console.log('Gönderi başarıyla kaydedildi:', postData);
@@ -180,7 +181,7 @@ export default function MainContainer() {
           <View style={styles.profileInfo}>
             <Image
               source={{
-                uri:'https://trthaberstatic.cdn.wp.trt.com.tr/resimler/1844000/ismail-kartal-1844308.jpg',
+                uri: profileImage 
               }}
               style={styles.profileImage}
             />
