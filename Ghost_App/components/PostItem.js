@@ -1,20 +1,77 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Video } from 'expo-av';
+import Slider from '@react-native-community/slider';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native';
 
-export default function PostItem({ post, username, profilePicture, isFocused }) {
+export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showControls, setShowControls] = useState(true);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const hideControlsTimeout = useRef(null);
+  const isFocused = useIsFocused(); // Sekme odağını algılamak için
 
   useEffect(() => {
-    if (videoRef.current) {
-      if (isFocused) {
-        videoRef.current.playAsync();
-      } else {
-        videoRef.current.pauseAsync();
-      }
+    // Sayfa odaktan çıkarsa videoyu durdur
+    if (!isFocused && videoRef.current) {
+      videoRef.current.pauseAsync();
+      setIsPlaying(false);
     }
-  }, [isFocused]);
+
+    // Video kontrol gizleme
+    if (showControls) {
+      hideControlsTimeout.current = setTimeout(() => setShowControls(false), 5000);
+    } else {
+      // Eğer kontrol gizlendiyse, zamanlayıcıyı temizle
+      clearTimeout(hideControlsTimeout.current);
+    }
+
+    return () => {
+      // component unmount edildiğinde zamanlayıcıyı temizle
+      clearTimeout(hideControlsTimeout.current);
+    };
+  }, [isFocused, showControls]);
+
+  //Videoyu durdurma ve oynatma
+  const handlePlayPause = async () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        await videoRef.current.pauseAsync();
+      } else {
+        await videoRef.current.playAsync();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleMute = async () => {
+    if (videoRef.current) {
+      await videoRef.current.setIsMutedAsync(!isMuted);
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleDownload = () => {
+     //YAPI lacak
+  };
+
+  //Tam Ekrana Alma Kodu
+  const handleFullscreen = () => {
+    if (videoRef.current) {
+      videoRef.current.presentFullscreenPlayer();
+    }
+  };
+
+  //Slider kontrol kodu
+  const handleSliderValueChange = async (value) => {
+    if (videoRef.current) {
+      await videoRef.current.setPositionAsync(value);
+    }
+  };
 
   const createdAt = post.createdAt?.seconds
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
@@ -36,14 +93,70 @@ export default function PostItem({ post, username, profilePicture, isFocused }) 
         )}
 
         {post.videoUri && (
-          <Video
-          ref={videoRef}
-          style={styles.postVideo}
-          source={{ uri: post.videoUri }}
-          resizeMode="contain"
-          useNativeControls 
-          shouldPlay={true} // Başlangıçta otomatik oynatmayı kapalı tutar
-        />
+          <TouchableOpacity
+            style={styles.videoWrapper}
+            onPress={() => setShowControls(!showControls)}
+            activeOpacity={1}
+          >
+            <Video
+              ref={videoRef}
+              style={styles.postVideo}
+              source={{ uri: post.videoUri }}
+              resizeMode="contain"
+              shouldPlay
+              isMuted={isMuted}
+              onPress={handleFullscreen}
+              onPlaybackStatusUpdate={(status) => {
+                setVideoDuration(status.durationMillis);
+                setCurrentTime(status.positionMillis);
+              }}
+            />
+            {showControls && (
+              <>
+                {/* Oynat/Durdur Butonu */}
+                <TouchableOpacity
+                  onPress={handlePlayPause}
+                  style={styles.playPauseButton}
+                >
+                  <Ionicons
+                    name={isPlaying ? 'pause' : 'play'}
+                    size={50}
+                    color="#FFF"
+                  />
+                </TouchableOpacity>
+
+                {/* Alt Kontroller */}
+                <View style={styles.bottomControls}>
+                  <TouchableOpacity onPress={handleDownload}>
+                    <Ionicons name="download" size={20} color="#FFF" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={handleMute}>
+                    <Ionicons
+                      name={isMuted ? 'volume-mute' : 'volume-high'}
+                      size={20}
+                      color="#FFF"
+                    />
+                  </TouchableOpacity>
+                 
+                  <TouchableOpacity onPress={handleFullscreen}>
+                    <Ionicons name="expand" size={20} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Zaman Çubuğu */}
+                <Slider
+                  style={styles.slider}
+                  value={currentTime}
+                  minimumValue={0}
+                  maximumValue={videoDuration}
+                  onSlidingComplete={handleSliderValueChange}
+                  minimumTrackTintColor="#FFF"
+                  maximumTrackTintColor="#888"
+                />
+              </>
+            )}
+          </TouchableOpacity>
         )}
 
         <View style={styles.footer}>
@@ -117,11 +230,39 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 10,
   },
-  postVideo: {
-    width: '100%',
-    height: 350,
+  videoWrapper: {
+    backgroundColor: '#000',
     borderRadius: 20,
     marginBottom: 10,
+    position: 'relative',
+  },
+  postVideo: {
+    width: '100%',
+    borderRadius: 20,
+    height: 350,
+  },
+  playPauseButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    zIndex: 2,
+  },
+  bottomControls: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  slider: {
+    position: 'absolute',
+    bottom: 40,
+    width: '100%',
+    height: 20,
   },
   footer: {
     flexDirection: 'row',

@@ -91,7 +91,8 @@ export default function App() {
 
 function LoadingScreen() {
     return (
-        <View style={{flex: 1, justifyContent: 'center',  alignItems: 'center', flexDirection:'column' }}>  
+        <View style={{flex: 1, justifyContent: 'space-around',  alignItems: 'center', flexDirection:'column' }}>  
+        <View></View>
             <ImageBackground style={{width:200,height:200,}}source={require('./assets/icon.png')}></ImageBackground>
             <ActivityIndicator size="large" color="#000"/>
         </View>
