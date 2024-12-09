@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Video } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,13 +7,16 @@ import { useIsFocused } from '@react-navigation/native';
 
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const hideControlsTimeout = useRef(null);
-  const isFocused = useIsFocused(); // Sekme odağını algılamak için
+  const isFocused = useIsFocused();
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [isVideoModalVisible, setIsVideoModalVisible] = useState(false);
+  const [videoPosition, setVideoPosition] = useState(null); // Video'nun görünürlük kontrolü için
 
   useEffect(() => {
     // Sayfa odaktan çıkarsa videoyu durdur
@@ -22,21 +25,18 @@ export default function PostItem({ post, username, profilePicture }) {
       setIsPlaying(false);
     }
 
-    // Video kontrol gizleme
     if (showControls) {
       hideControlsTimeout.current = setTimeout(() => setShowControls(false), 5000);
     } else {
-      // Eğer kontrol gizlendiyse, zamanlayıcıyı temizle
       clearTimeout(hideControlsTimeout.current);
     }
 
     return () => {
-      // component unmount edildiğinde zamanlayıcıyı temizle
       clearTimeout(hideControlsTimeout.current);
     };
   }, [isFocused, showControls]);
 
-  //Videoyu durdurma ve oynatma
+  // Videoyu durdurma ve oynatma
   const handlePlayPause = async () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -56,17 +56,15 @@ export default function PostItem({ post, username, profilePicture }) {
   };
 
   const handleDownload = () => {
-     //YAPI lacak
+    //YAPI lacak
   };
 
-  //Tam Ekrana Alma Kodu
   const handleFullscreen = () => {
     if (videoRef.current) {
       videoRef.current.presentFullscreenPlayer();
     }
   };
 
-  //Slider kontrol kodu
   const handleSliderValueChange = async (value) => {
     if (videoRef.current) {
       await videoRef.current.setPositionAsync(value);
@@ -77,109 +75,194 @@ export default function PostItem({ post, username, profilePicture }) {
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
     : 'Bilinmeyen Tarih';
 
+  // Scroll işlemiyle birlikte videonun görünürlük durumunu kontrol et
+  const handleScroll = (event) => {
+    const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    const videoElement = videoRef.current?.getBoundingClientRect();
+    
+    if (videoElement) {
+      const videoTop = videoElement.top - contentOffset.y;
+      const videoHeight = videoElement.height;
+
+      // Videonun %50'si görünmüyorsa durdur
+      if (videoTop + videoHeight < 0 || videoTop > layoutMeasurement.height) {
+        if (isPlaying) {
+          videoRef.current.pauseAsync();
+          setIsPlaying(false);
+        }
+      }
+    }
+  };
+
   return (
-    <View style={styles.postContainer}>
-      <Image source={{ uri: profilePicture }} style={styles.profileImage} />
-      <View style={styles.postContent}>
-        <View style={styles.usernameContainer}>
-          <Text style={styles.username}>@{username}</Text>
-          <Text style={styles.timestamp}>{createdAt}</Text>
-        </View>
+    <ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      //onScroll={handleScroll} // Kaydırma olayını dinleyin
+      scrollEventThrottle={16}
+    >
+      <View style={styles.postContainer}>
+        <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+        <View style={styles.postContent}>
+          <View style={styles.usernameContainer}>
+            <Text style={styles.username}>@{username}</Text>
+            <Text style={styles.timestamp}>{createdAt}</Text>
+          </View>
 
-        {post.text && <Text style={styles.postText}>{post.text}</Text>}
+          {post.text && <Text style={styles.postText}>{post.text}</Text>}
 
-        {post.imageUri && (
-          <Image source={{ uri: post.imageUri }} style={styles.postImage} />
-        )}
+          {post.imageUri && (
+            <>
+              <TouchableOpacity
+                onPress={() => setIsImageModalVisible(true)}
+              >
+                <Image source={{ uri: post.imageUri }} style={styles.postImage} />
+              </TouchableOpacity>
 
-        {post.videoUri && (
-          <TouchableOpacity
-            style={styles.videoWrapper}
-            onPress={() => setShowControls(!showControls)}
-            activeOpacity={1}
-          >
-            <Video
-              ref={videoRef}
-              style={styles.postVideo}
-              source={{ uri: post.videoUri }}
-              resizeMode="contain"
-              shouldPlay
-              isMuted={isMuted}
-              onPress={handleFullscreen}
-              onPlaybackStatusUpdate={(status) => {
-                setVideoDuration(status.durationMillis);
-                setCurrentTime(status.positionMillis);
-              }}
-            />
-            {showControls && (
-              <>
-                {/* Oynat/Durdur Butonu */}
-                <TouchableOpacity
-                  onPress={handlePlayPause}
-                  style={styles.playPauseButton}
-                >
-                  <Ionicons
-                    name={isPlaying ? 'pause' : 'play'}
-                    size={50}
-                    color="#FFF"
+              <Modal
+                visible={isImageModalVisible}
+                transparent={true}
+                onRequestClose={() => setIsImageModalVisible(false)}
+              >
+                <View style={styles.modalContainer} onPress={() => setIsImageModalVisible(false)}>
+                  <Image
+                    source={{ uri: post.imageUri }}
+                    style={styles.modalImage}
                   />
-                </TouchableOpacity>
-
-                {/* Alt Kontroller */}
-                <View style={styles.bottomControls}>
-                  <TouchableOpacity onPress={handleDownload}>
-                    <Ionicons name="download" size={20} color="#FFF" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={handleMute}>
-                    <Ionicons
-                      name={isMuted ? 'volume-mute' : 'volume-high'}
-                      size={20}
-                      color="#FFF"
-                    />
-                  </TouchableOpacity>
-                 
-                  <TouchableOpacity onPress={handleFullscreen}>
-                    <Ionicons name="expand" size={20} color="#FFF" />
+                  <TouchableOpacity
+                    style={styles.modalCloseButton}
+                    onPress={() => setIsImageModalVisible(false)}>
+                    <Ionicons name="close" size={40} color="#FFF" />
                   </TouchableOpacity>
                 </View>
+              </Modal>
+            </>
+          )}
 
-                {/* Zaman Çubuğu */}
-                <Slider
-                  style={styles.slider}
-                  value={currentTime}
-                  minimumValue={0}
-                  maximumValue={videoDuration}
-                  onSlidingComplete={handleSliderValueChange}
-                  minimumTrackTintColor="#FFF"
-                  maximumTrackTintColor="#888"
+          {post.videoUri && (
+            <>
+              <TouchableOpacity
+                style={styles.videoWrapper}
+                onPress={() => setShowControls(!showControls)}
+                activeOpacity={1}
+              >
+                <Video
+                  ref={videoRef}
+                  style={styles.postVideo}
+                  source={{ uri: post.videoUri }}
+                  resizeMode="contain"
+                  shouldPlay={isPlaying} // Video oynatma durumu
+                  isMuted={isMuted}
+                  onPress={handleFullscreen}
+                  onPlaybackStatusUpdate={(status) => {
+                    setVideoDuration(status.durationMillis);
+                    setCurrentTime(status.positionMillis);
+
+                    if (status.didJustFinish) {
+                      videoRef.current.setPositionAsync(0); // Videoyu başa sar
+                      videoRef.current.playAsync(); // Yeniden oynat
+                    }
+                  }}
                 />
-              </>
-            )}
-          </TouchableOpacity>
-        )}
+                {showControls && (
+                  <>
+                    <TouchableOpacity onPress={handleDownload} style={styles.handleDownloadButton}>
+                      <Ionicons name="download" size={30} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handlePlayPause}
+                      style={styles.playPauseButton}
+                    >
+                      <Ionicons
+                        name={isPlaying ? 'pause' : 'play'}
+                        size={50}
+                        color="#FFF"
+                      />
+                    </TouchableOpacity>
+                    <View style={styles.bottomControls}>
+                      <TouchableOpacity onPress={handleMute}>
+                        <Ionicons
+                          name={isMuted ? 'volume-mute' : 'volume-high'}
+                          size={20}
+                          color="#FFF"
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          handlePlayPause();
+                          setIsVideoModalVisible(true);
+                        }}
+                      >
+                        <Ionicons name="expand" size={20} color="#FFF" />
+                      </TouchableOpacity>
+                    </View>
 
-        <View style={styles.footer}>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity>
-              <Ionicons name="heart-outline" size={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="bookmark-outline" size={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="share-outline" size={24} color="#FFF" />
-            </TouchableOpacity>
+                    <Slider
+                      style={styles.slider}
+                      value={currentTime}
+                      minimumValue={0}
+                      maximumValue={videoDuration}
+                      onSlidingComplete={handleSliderValueChange}
+                      minimumTrackTintColor="#FFF"
+                      maximumTrackTintColor="#888"
+                    />
+                  </>
+                )}
+
+                <Modal
+                  visible={isVideoModalVisible}
+                  transparent={true}
+                  onRequestClose={() => setIsVideoModalVisible(false)}
+                >
+                  <View style={styles.modalContainer}>
+                    <Video
+                      style={styles.modalVideo}
+                      source={{ uri: post.videoUri }}
+                      resizeMode="contain"
+                      shouldPlay={true} 
+                      useNativeControls 
+                      onPlaybackStatusUpdate={(status) => {
+                        setVideoDuration(status.durationMillis);
+                        setCurrentTime(status.positionMillis);
+
+                        
+                      }}
+                    />
+                    <TouchableOpacity
+                      style={styles.modalCloseButton}
+                      onPress={() => {
+                        handlePlayPause();
+                        setIsVideoModalVisible(false);
+                      }}>
+                      <Ionicons name="close" size={40} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
+                </Modal>
+              </TouchableOpacity>
+            </>
+          )}
+
+          <View style={styles.footer}>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity>
+                <Ionicons name="heart-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="bookmark-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="share-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -245,7 +328,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
+    transform: [{ translateX: -25 }, { translateY: -25 }], 
+    zIndex: 2,
+  },
+  handleDownloadButton: {
+    position: 'absolute',
+    top: '10%',
+    left: '95%',
+    transform: [{ translateX: -25 }, { translateY: -25 }], 
     zIndex: 2,
   },
   bottomControls: {
@@ -272,5 +362,26 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: 'row',
     gap: 15,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+  },
+  modalImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  modalVideo: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
