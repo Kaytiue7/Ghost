@@ -4,6 +4,7 @@ import { Video } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
@@ -74,30 +75,9 @@ export default function PostItem({ post, username, profilePicture }) {
   const createdAt = post.createdAt?.seconds
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
     : 'Bilinmeyen Tarih';
-
-  // Scroll işlemiyle birlikte videonun görünürlük durumunu kontrol et
-  const handleScroll = (event) => {
-    const { contentOffset, layoutMeasurement } = event.nativeEvent;
-    const videoElement = videoRef.current?.getBoundingClientRect();
-    
-    if (videoElement) {
-      const videoTop = videoElement.top - contentOffset.y;
-      const videoHeight = videoElement.height;
-
-      // Videonun %50'si görünmüyorsa durdur
-      if (videoTop + videoHeight < 0 || videoTop > layoutMeasurement.height) {
-        if (isPlaying) {
-          videoRef.current.pauseAsync();
-          setIsPlaying(false);
-        }
-      }
-    }
-  };
-
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      //onScroll={handleScroll} // Kaydırma olayını dinleyin
       scrollEventThrottle={16}
     >
       <View style={styles.postContainer}>
@@ -124,10 +104,10 @@ export default function PostItem({ post, username, profilePicture }) {
                 onRequestClose={() => setIsImageModalVisible(false)}
               >
                 <View style={styles.modalContainer} onPress={() => setIsImageModalVisible(false)}>
-                  <Image
-                    source={{ uri: post.imageUri }}
-                    style={styles.modalImage}
-                  />
+        <ImageViewer 
+          imageUrls={[{ url: post.imageUri }]} // Burada imageUrls dizisi oluşturduk
+          style={styles.modalImage}
+        />
                   <TouchableOpacity
                     style={styles.modalCloseButton}
                     onPress={() => setIsImageModalVisible(false)}>
