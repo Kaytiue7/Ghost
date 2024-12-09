@@ -104,10 +104,10 @@ export default function PostItem({ post, username, profilePicture }) {
                 onRequestClose={() => setIsImageModalVisible(false)}
               >
                 <View style={styles.modalContainer} onPress={() => setIsImageModalVisible(false)}>
-        <ImageViewer 
-          imageUrls={[{ url: post.imageUri }]} // Burada imageUrls dizisi oluşturduk
-          style={styles.modalImage}
-        />
+                    <ImageViewer 
+                      imageUrls={[{ url: post.imageUri }]}
+                      style={styles.modalImage}
+                    />
                   <TouchableOpacity
                     style={styles.modalCloseButton}
                     onPress={() => setIsImageModalVisible(false)}>
