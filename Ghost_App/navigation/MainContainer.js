@@ -104,7 +104,7 @@ export default function MainContainer() {
       try {
         const storage = getStorage();
         const uniqueFileName = `${userId}_${Date.now()}`;
-        const imageRef = ref(storage, `_postFile/${uniqueFileName}`);
+        const imageRef = ref(storage, `_postImageFile/${uniqueFileName}`);
         const response = await fetch(imageUri);
         const blob = await response.blob();
 
@@ -125,7 +125,7 @@ export default function MainContainer() {
       try {
         const storage = getStorage();
         const uniqueFileName = `${userId}_${Date.now()}`;
-        const videoRef = ref(storage, `_postFile/${uniqueFileName}`);
+        const videoRef = ref(storage, `_postVideoFile/${uniqueFileName}`);
         const response = await fetch(videoUri);
         const blob = await response.blob();
 

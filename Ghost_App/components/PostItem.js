@@ -10,6 +10,7 @@ import { firestore } from '../firebase/firebaseConfig';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import * as Permissions from "expo-permissions";
+import Toast from 'react-native-toast-message'; 
 
 
 export default function PostItem({ post, username, profilePicture }) {
@@ -150,35 +151,76 @@ export default function PostItem({ post, username, profilePicture }) {
 
   const handleDownload = async () => {
     try {
-      // Medya kütüphanesi izinlerini sorgulama
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        alert('Medya kütüphanesine erişim izni verilmedi!');
+        Toast.show({
+          type: 'error',
+          text1: 'İzin Hatası',
+          text2: 'Medya kütüphanesine erişim izni verilmedi!',
+        });
         return;
       }
   
-      // Videonun URI'sini alıyoruz
-      const videoUri = post.videoUri;
+      const fileUri = post.videoUri || post.imageUri;
   
-      // Dosyayı geçici bir konuma indiriyoruz
-      const downloadResumable = FileSystem.createDownloadResumable(
-        videoUri,
-        FileSystem.documentDirectory + 'downloaded_video.mp4'
-      );
+      console.log(fileUri);
+      if (!fileUri) {
+        console.log('İndirilecek bir dosya bulunamadı.');
+        return;
+      }
   
-      // İndirme işlemini başlatıyoruz
+      const fileExtension = fileUri.includes('_postVideoFile') ? '.mp4' : '.jpg';
+      const timestamp = new Date().getTime();
+      const uniqueFileName = `downloaded_${timestamp}${fileExtension}`;
+  
+      const ghostFolderUri = FileSystem.documentDirectory + 'Ghost/';
+      const folderInfo = await FileSystem.getInfoAsync(ghostFolderUri);
+      if (!folderInfo.exists) {
+        await FileSystem.makeDirectoryAsync(ghostFolderUri);
+      }
+  
+      const fullPath = ghostFolderUri + uniqueFileName;
+  /*/
+      // İndirilecek dosyanın zaten var olup olmadığını kontrol et
+      const fileInfo = await FileSystem.getInfoAsync(fullPath);
+      if (fileInfo.exists) {
+        console.log('Dosya zaten mevcut, indirme işlemi atlandı.');
+        return;
+      }
+  /*/
+      // Dosyayı indir
+      const downloadResumable = FileSystem.createDownloadResumable(fileUri, fullPath);
       const { uri } = await downloadResumable.downloadAsync();
   
-      // İndirilen dosyayı medya kütüphanesine kaydediyoruz
+      // Medya kütüphanesine kaydet
       const asset = await MediaLibrary.createAssetAsync(uri);
-      await MediaLibrary.createAlbumAsync('Downloaded Videos', asset, false); // 'Downloaded Videos' albümüne kaydediyoruz
   
-      alert('İndirme başarılı!');
+      const albumName = 'Ghost';
+      let album = await MediaLibrary.getAlbumAsync(albumName);
+  
+      if (!album) {
+        album = await MediaLibrary.createAlbumAsync(albumName, asset, false);
+      } else {
+        await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
+      }
+  
+      Toast.show({
+        type: 'success',
+        text1: 'İndirme Başarılı!',
+        text2: 'Dosyanız başarıyla indirildi ve kaydedildi.',
+      });
     } catch (error) {
       console.error('İndirme işlemi sırasında bir hata oluştu:', error);
-      alert('Bir hata oluştu!');
+  
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Bir hata oluştu!',
+      });
     }
   };
+  
+
   const handleFullscreen = () => {
     if (videoRef.current) {
       videoRef.current.presentFullscreenPlayer();
@@ -397,6 +439,8 @@ export default function PostItem({ post, username, profilePicture }) {
     </ScrollView>
   );
 }
+
+
 const styles = StyleSheet.create({
   postContainer: {
     flexDirection: 'row',
