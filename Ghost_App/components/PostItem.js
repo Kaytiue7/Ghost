@@ -1,26 +1,119 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ScrollView, RefreshControlComponent, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import * as SecureStore from 'expo-secure-store';
+import { firestore } from '../firebase/firebaseConfig';
+import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
+import * as Permissions from "expo-permissions";
+
 
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false); //bu true olursa video otomaitk başlar
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [likesCount, setLikesCount] = useState(0); // Beğeni sayısını tutan state
+  const [liked, setLiked] = useState(false); // Kullanıcının beğenip beğenmediğini kontrol eden state
   const hideControlsTimeout = useRef(null);
   const isFocused = useIsFocused();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false);
-  const [videoPosition, setVideoPosition] = useState(null); // Video'nun görünürlük kontrolü için
+  
 
   useEffect(() => {
-    // Sayfa odaktan çıkarsa videoyu durdur
+    const getPermissions = async () => {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Medya kütüphanesine erişim izni verilmedi!');
+      }
+    };
+    getPermissions();
+  }, []);
+
+  // Firestore'dan beğeni sayısını çekmek
+  useEffect(() => {
+    const fetchLikesCount = async () => {
+      const postLikesRef = firestore
+        .collection('Posts')
+        .doc(post.id)
+        .collection('UsersLiked');
+      
+      const snapshot = await postLikesRef.get();
+      setLikesCount(snapshot.size); // Snapshot'taki belge sayısını al
+    };
+
+    const checkIfLiked = async () => {
+      const storedUserId = await SecureStore.getItemAsync('userId');
+      if (!storedUserId) return;
+      
+      const postLikesRef = firestore
+        .collection('Posts')
+        .doc(post.id)
+        .collection('UsersLiked');
+        
+      const querySnapshot = await postLikesRef
+        .where('userId', '==', storedUserId)
+        .limit(1)
+        .get();
+      
+      if (!querySnapshot.empty) {
+        setLiked(true); // Kullanıcı beğenmişse liked state'ini true yap
+      }
+    };
+
+    fetchLikesCount(); // Beğeni sayısını al
+    checkIfLiked(); // Beğeni yapılıp yapılmadığını kontrol et
+
+  }, [isFocused, post.id]);
+
+  // Beğeni butonuna tıklama fonksiyonu
+  const handleLike = async () => {
+    try {
+      const storedUserId = await SecureStore.getItemAsync('userId'); // Kullanıcı ID'sini alın.
+      if (!storedUserId) {
+        console.log('Kullanıcı ID bulunamadı.');
+        return;
+      }
+  
+      const postLikesRef = firestore
+        .collection('Posts')
+        .doc(post.id)
+        .collection('UsersLiked');
+  
+      const querySnapshot = await postLikesRef
+        .where('userId', '==', storedUserId)
+        .limit(1)
+        .get();
+  
+      if (!querySnapshot.empty) {
+        const docId = querySnapshot.docs[0].id;
+        await postLikesRef.doc(docId).delete();
+        console.log(`Post ${post.id} için kullanıcı ${storedUserId} beğenisi kaldırıldı.`);
+        setLikesCount(likesCount - 1); // Beğeni sayısını güncelle
+        setLiked(false); // Beğeni kaldırıldı
+      } else {
+        await postLikesRef.add({
+          postId: post.id,
+          userId: storedUserId,
+        });
+        console.log(`Post ${post.id} için kullanıcı ${storedUserId} beğenisi eklendi.`);
+        setLikesCount(likesCount + 1); // Beğeni sayısını güncelle
+        setLiked(true); // Kullanıcı beğendi
+      }
+    } catch (error) {
+      console.error('Beğeni işlemi sırasında hata oluştu:', error);
+    }
+  };
+
+  // Sayfa odaktan çıkarsa videoyu durdur
+  useEffect(() => {
     if (!isFocused && videoRef.current) {
       videoRef.current.pauseAsync();
       setIsPlaying(false);
@@ -37,7 +130,6 @@ export default function PostItem({ post, username, profilePicture }) {
     };
   }, [isFocused, showControls]);
 
-  // Videoyu durdurma ve oynatma
   const handlePlayPause = async () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -56,10 +148,37 @@ export default function PostItem({ post, username, profilePicture }) {
     }
   };
 
-  const handleDownload = () => {
-    //YAPI lacak
+  const handleDownload = async () => {
+    try {
+      // Medya kütüphanesi izinlerini sorgulama
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Medya kütüphanesine erişim izni verilmedi!');
+        return;
+      }
+  
+      // Videonun URI'sini alıyoruz
+      const videoUri = post.videoUri;
+  
+      // Dosyayı geçici bir konuma indiriyoruz
+      const downloadResumable = FileSystem.createDownloadResumable(
+        videoUri,
+        FileSystem.documentDirectory + 'downloaded_video.mp4'
+      );
+  
+      // İndirme işlemini başlatıyoruz
+      const { uri } = await downloadResumable.downloadAsync();
+  
+      // İndirilen dosyayı medya kütüphanesine kaydediyoruz
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      await MediaLibrary.createAlbumAsync('Downloaded Videos', asset, false); // 'Downloaded Videos' albümüne kaydediyoruz
+  
+      alert('İndirme başarılı!');
+    } catch (error) {
+      console.error('İndirme işlemi sırasında bir hata oluştu:', error);
+      alert('Bir hata oluştu!');
+    }
   };
-
   const handleFullscreen = () => {
     if (videoRef.current) {
       videoRef.current.presentFullscreenPlayer();
@@ -75,6 +194,7 @@ export default function PostItem({ post, username, profilePicture }) {
   const createdAt = post.createdAt?.seconds
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
     : 'Bilinmeyen Tarih';
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -95,8 +215,15 @@ export default function PostItem({ post, username, profilePicture }) {
               <TouchableOpacity
                 onPress={() => setIsImageModalVisible(true)}
               >
-                <Image source={{ uri: post.imageUri }} style={styles.postImage} />
+                <Image source={{ uri: post.imageUri }} style={styles.postImage}></Image>
+ 
+                <TouchableOpacity onPress={handleDownload} style={styles.handleDownloadButton}>
+                      <Ionicons name="download" size={30} color="#FFF" />
+                    </TouchableOpacity>
+
               </TouchableOpacity>
+
+              
 
               <Modal
                 visible={isImageModalVisible}
@@ -104,10 +231,10 @@ export default function PostItem({ post, username, profilePicture }) {
                 onRequestClose={() => setIsImageModalVisible(false)}
               >
                 <View style={styles.modalContainer} onPress={() => setIsImageModalVisible(false)}>
-                    <ImageViewer 
-                      imageUrls={[{ url: post.imageUri }]}
-                      style={styles.modalImage}
-                    />
+                  <ImageViewer 
+                    imageUrls={[{ url: post.imageUri }]}
+                    style={styles.modalImage}
+                  />
                   <TouchableOpacity
                     style={styles.modalCloseButton}
                     onPress={() => setIsImageModalVisible(false)}>
@@ -203,8 +330,6 @@ export default function PostItem({ post, username, profilePicture }) {
                       onPlaybackStatusUpdate={(status) => {
                         setVideoDuration(status.durationMillis);
                         setCurrentTime(status.positionMillis);
-
-                        
                       }}
                     />
                     <TouchableOpacity
@@ -223,21 +348,48 @@ export default function PostItem({ post, username, profilePicture }) {
 
           <View style={styles.footer}>
             <View style={styles.iconContainer}>
-              <TouchableOpacity>
-                <Ionicons name="heart-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Ionicons name="bookmark-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Ionicons name="share-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
+              <View style={styles.iconAndTextContainer}>
+                <TouchableOpacity onPress={handleLike}>
+                  <Ionicons
+                    name={liked ? 'heart' : 'heart-outline'}
+                    size={24}
+                    color={liked ? '#cc001a' : '#FFF'}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.iconText}>{likesCount}</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.iconAndTextContainer}>
+                <TouchableOpacity>
+                  <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.iconText}>0</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.iconAndTextContainer}>
+                <TouchableOpacity>
+                  <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.iconText}>0</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.iconAndTextContainer}>
+                <TouchableOpacity>
+                  <Ionicons name="bookmark-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.iconText}>0</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.iconAndTextContainer}>
+                <TouchableOpacity>
+                  <Ionicons name="share-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              
             </View>
           </View>
         </View>
@@ -245,7 +397,6 @@ export default function PostItem({ post, username, profilePicture }) {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   postContainer: {
     flexDirection: 'row',
@@ -308,14 +459,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }], 
+    transform: [{ translateX: -25 }, { translateY: -25 }],
     zIndex: 2,
   },
   handleDownloadButton: {
     position: 'absolute',
     top: '10%',
     left: '95%',
-    transform: [{ translateX: -25 }, { translateY: -25 }], 
+    transform: [{ translateX: -25 }, { translateY: -25 }],
     zIndex: 2,
   },
   bottomControls: {
@@ -343,6 +494,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 15,
   },
+  iconAndTextContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  iconText: {
+    color: '#FFF',
+    fontSize: 20,
+    verticalAlign: 'bottom',
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -364,4 +524,11 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
+  
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Yarı şeffaf bir arka plan
+    },
 });

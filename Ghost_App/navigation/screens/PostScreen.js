@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { firestore } from '../../firebase/firebaseConfig';
 import PostItem from '../../components/PostItem';
 
@@ -8,6 +8,7 @@ export default function PostsScreen() {
   const [usernames, setUsernames] = useState({});
   const [profilePictures, setProfilePictures] = useState({});
   const [viewableItems, setViewableItems] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading durumu ekleniyor
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     setViewableItems(viewableItems.map((item) => item.item.id));
@@ -24,6 +25,7 @@ export default function PostsScreen() {
         }));
 
         setPosts(postsData);
+        setLoading(false); // Veri alındığında loading durumu false yapılıyor
 
         postsData.forEach(async (post) => {
           if (post.userId) {
@@ -63,15 +65,20 @@ export default function PostsScreen() {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={posts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
-        onViewableItemsChanged={onViewableItemsChanged.current}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 69, // Görünürlük eşiği
-        }}
-      />
+      {loading ? (
+        // Loading göstergesi, veri alınırken görünür
+        <ActivityIndicator size="large" color="#FFFFFF" style={styles.loadingIndicator} />
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          onViewableItemsChanged={onViewableItemsChanged.current}
+          viewabilityConfig={{
+            itemVisiblePercentThreshold: 69, // Görünürlük eşiği
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -83,5 +90,10 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 10,
+  },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

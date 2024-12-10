@@ -8,7 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
-import { Video } from 'expo-av'; // expo-av'den Video bileşenini import ediyoruz
+import { Video } from 'expo-av'; 
 
 import PostScreen from './screens/PostScreen';
 import SearchScreen from './screens/SearchScreen';
@@ -30,7 +30,7 @@ export default function MainContainer() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [text, setText] = useState('');
   const [imageUri, setImageUri] = useState(null);
-  const [videoUri, setVideoUri] = useState(null); // Yeni state video URI'si için
+  const [videoUri, setVideoUri] = useState(null); 
   const [username, setUsername] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -73,7 +73,7 @@ export default function MainContainer() {
 
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
-      setVideoUri(null); // Video seçildiğinde fotoğrafı sıfırla
+      setVideoUri(null); 
     }
   };
 
@@ -86,7 +86,7 @@ export default function MainContainer() {
 
     if (!result.canceled) {
       setVideoUri(result.assets[0].uri);
-      setImageUri(null); // Video seçildiğinde fotoğrafı sıfırla
+      setImageUri(null); 
     }
   };
 
@@ -146,7 +146,7 @@ export default function MainContainer() {
       userId,
       createdAt: serverTimestamp(),
       imageUri: uploadedImageUrl,
-      videoUri: uploadedVideoUrl, // Video URL'sini kaydediyoruz
+      videoUri: uploadedVideoUrl, 
     };
 
     try {
@@ -154,7 +154,7 @@ export default function MainContainer() {
       console.log('Gönderi başarıyla kaydedildi:', postData);
       setText('');
       setImageUri(null);
-      setVideoUri(null); // Video ve fotoğraf sıfırlanıyor
+      setVideoUri(null); 
       toggleModal();
     } catch (error) {
       console.error('Gönderi kaydedilirken hata oluştu:', error);
@@ -197,7 +197,13 @@ export default function MainContainer() {
         })}>
         <Tab.Screen name={postName} component={PostScreen} options={{ headerShown: true }} />
         <Tab.Screen name={searchName} component={SearchScreen} options={{ headerShown: true }} />
-        <Tab.Screen name={emptyName} component={EmptyScreen} options={{ tabBarStyle: { display: 'none' } }} />
+        <Tab.Screen
+          name={emptyName}
+          component={EmptyScreen}  // Yeni ekranı buraya ekliyoruz
+          options={{
+            tabBarStyle: { display: 'none' },  // Butonu gizlemek için bu satırı ekliyoruz
+          }}
+        />
         <Tab.Screen name={messageName} component={MessageScreen} options={{ headerShown: true }} />
         <Tab.Screen name={accountName} component={AccountScreen} options={{ headerShown: true }} />
       </Tab.Navigator>
@@ -207,6 +213,9 @@ export default function MainContainer() {
         onBackdropPress={toggleModal}
         backdropOpacity={0}
         style={styles.modalStyle}
+
+       
+                  transparent={true}
       >
         <View style={styles.modalContent}>
           <View style={styles.profileInfo}>
@@ -235,7 +244,7 @@ export default function MainContainer() {
           {videoUri && (
             <View>
               <Video style={styles.MainImage}
-                source={{ uri: videoUri }} // Seçilen video URI'si
+                source={{ uri: videoUri }} 
                 isLooping
                 resizeMode="contain"
                 useNativeControls
