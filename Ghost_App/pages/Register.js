@@ -43,6 +43,18 @@ export default function RegisterPage({ navigation }) {
     }
 
     try {
+      //Kullanıcı adı kontrolü
+      const usernameSnapshot = await firestore
+      .collection('Users')
+      .where('username', '==', username)
+      .get();
+
+    if (!usernameSnapshot.empty) {
+      setError('Bu kullanıcı adı zaten alınmış.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+      return;
+    }
       // Hexleme 
       const hashedPassword = crypto.SHA256(password).toString(crypto.enc.Hex);
 
