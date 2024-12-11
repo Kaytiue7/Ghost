@@ -4,11 +4,14 @@ import { firestore } from '../../firebase/firebaseConfig';
 import PostItem from '../../components/PostItem';
 
 export default function PostsScreen() {
+ 
   const [posts, setPosts] = useState([]);
   const [usernames, setUsernames] = useState({});
   const [profilePictures, setProfilePictures] = useState({});
   const [viewableItems, setViewableItems] = useState([]);
   const [loading, setLoading] = useState(true); // Loading durumu ekleniyor
+
+ 
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     setViewableItems(viewableItems.map((item) => item.item.id));

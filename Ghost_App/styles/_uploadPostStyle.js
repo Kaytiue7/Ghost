@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
   MainImage: {
     width: '100%',
     height: 300,
-    marginBottom: 30,
+    marginBottom: 10,
+    borderRadius:10,
   },
   imagePickerContainer: {
     flexDirection: 'row',
@@ -76,6 +77,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+
+  borderContainer: {
+    flexDirection: 'row', // Yatay hizalama
+    
+    borderWidth: 2,
+    borderColor: '#FFF',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  borderImage: {
+    maxWidth: '33.33%', // Görselin yatayda 3'te 1'ini kaplaması için
+    minWidth:100,
+    height: 100,
+    borderRadius: 5,
+    padding:5, // Görsel ile metin arasına boşluk ekler
+  },
+  borderText: {
+    width: '66.66%', // Metnin yatayda 2/3'ünü kaplaması için
+    color: '#FFFFFF',
+    fontSize: 16,
+    paddingLeft:10,
+    fontWeight: '500',
+  },
+  
   modalCloseButton: {
     position: 'absolute',
     top: 20,

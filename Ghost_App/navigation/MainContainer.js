@@ -11,7 +11,7 @@ import MessageScreen from './screens/MessageScreen';
 import AccountScreen from './screens/AccountScreen';
 import EmptyScreen from './screens/EmptyScreen';
 
-import PostAddComponent from '../components/PostAddComponent';
+import PostAddComponent from '../components/PostAdd';
 
 const postName = 'Gönderiler';
 const searchName = 'Arama';
