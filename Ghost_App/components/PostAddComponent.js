@@ -1,6 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Image, StyleSheet, Text, Alert } from 'react-native';
-import Modal from 'react-native-modal';
+import { View, TextInput, TouchableOpacity, Image, StyleSheet, Text, Alert, Modal } from 'react-native';
 import { firestore } from '../firebase/firebaseConfig';
 import * as SecureStore from 'expo-secure-store';
 import { serverTimestamp } from 'firebase/firestore';
@@ -11,7 +10,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import styles from '../styles/_uploadPostStyle';
-
 const PostAddComponent = ({ toggleModal }) => {
     const [text, setText] = useState('');
     const [imageUri, setImageUri] = useState(null);
@@ -143,70 +141,75 @@ const PostAddComponent = ({ toggleModal }) => {
         }
     };
 
+  
     return (
-      <Modal animationType="slide">
-        <View style={styles.modalBackground}>
-        <View style={styles.modalContent}>
-          <View style={styles.profileInfo}>
-            <Image
-              source={{ uri: profileImage }}
-              style={styles.profileImage}
-            />
-            <Text style={styles.username}>@{username}</Text>
-          </View>
+        <Modal transparent animationType="slide">
+          <View style={styles.modalBackground}>
+          <TouchableOpacity
+            style={styles.modalCloseButton}
+            onPress={toggleModal} // Close modal on press
+          >
+            <Ionicons name="close" size={40} color="#FFF" />
+          </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Bir şeyler yazın..."
-              value={text}
-              onChangeText={setText}
-            />
-          </View>
-
-          {imageUri && (
-            <View style={styles.imagePreview}>
-              <Image source={{ uri: imageUri }} style={styles.MainImage} />
+          <View style={styles.modalContent}>
+            <View style={styles.profileContainer}>
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+              <Text style={styles.username}>@{username}</Text>
             </View>
-          )}
-          
-          {videoUri && (
-            <View>
-              <Video style={styles.MainImage}
-                source={{ uri: videoUri }} 
-                isLooping
-                resizeMode="contain"
-                useNativeControls
+  
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Bir şeyler yazın..."
+                placeholderTextColor="#FFFFFF"
+                value={text}
+                onChangeText={setText}
               />
             </View>
-          )}
-
-          <View style={styles.imagePickerContainer}>
-            <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
-              <Ionicons name="image-outline" size={30} color="white" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
-              <Ionicons name="videocam-outline" size={30} color="white" />
-            </TouchableOpacity>
+  
+            {imageUri && (
+              <View style={styles.imagePreview}>
+                <Image source={{ uri: imageUri }} style={styles.MainImage} />
+              </View>
+            )}
+            
+            {videoUri && (
+              <View>
+                <Video style={styles.MainImage}
+                  source={{ uri: videoUri }} 
+                  isLooping
+                  resizeMode="contain"
+                  useNativeControls
+                />
+              </View>
+            )}
+  
+            <View style={styles.imagePickerContainer}>
+              <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
+                <Ionicons name="image-outline" size={30} color="white" />
+              </TouchableOpacity>
+  
+              <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
+                <Ionicons name="videocam-outline" size={30} color="white" />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={savePost} style={styles.sendButton}>
+                <Text style={styles.sendButtonText}>Paylaş</Text>
+              </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={savePost} style={styles.sendButton}>
-              <Text style={styles.sendButtonText}>Paylaş</Text>
-            </TouchableOpacity>
-        </View>
-        </View>
+          </View>
+    
+          
+        </Modal>
+      );
+    };
+    
   
-        <TouchableOpacity
-          style={styles.modalCloseButton}
-          onPress={toggleModal} // Close modal on press
-        >
-          <Ionicons name="close" size={40} color="#FFF" />
-        </TouchableOpacity>
-      </Modal>
-    );
-  };
+   
+   
+  export default PostAddComponent;
   
-
- 
- 
-export default PostAddComponent;

@@ -1,120 +1,86 @@
-// styles.js
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   modalContent: {
     backgroundColor: '#222',
     padding: 20,
+    width:'90%',
     borderRadius: 10,
-    width: '90%',
-    alignItems: 'center',
-    zIndex: 1,
+    shadowColor: '#FFF',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 10,
+    elevation: 10,
   },
-  header: {
+  profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  username: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  textInput: {
-    backgroundColor: '#333',
-    color: '#fff',
-    borderRadius: 10,
-    width: '100%',
-    padding: 10,
-    marginBottom: 10,
-  },
-  mediaContainer: {
-    width: '100%',
-    marginBottom: 10,
-  },
-  mediaPreview: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  button: {
-    backgroundColor: '#444',
-    padding: 10,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 20,
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-  },
-  profileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 50,
-    marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 10,
+  username: {
+    color:'#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   input: {
-    backgroundColor: '#333',
+    height: 40,
+    borderColor: '#ccc',
+    color:'#FFFFFF',
+    borderBottomWidth: 2,
+    paddingLeft: 10,
+    marginBottom: 20,
+  },
+  sendButton: {
+    flexDirection: 'row',
+    width: '40%',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    elevation: 3,
+    alignSelf: 'center',
+  },
+  sendButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#fff',
-    borderRadius: 10,
-    padding: 10,
+  },
+  MainImage: {
     width: '100%',
+    height: 300,
+    marginBottom: 30,
   },
   imagePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 10,
   },
   imagePickerButton: {
-    backgroundColor: '#444',
-    padding: 15,
-    borderRadius: 50,
-  },
-  sendButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sendButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  MainImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
+  modalCloseButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex:9999
   },
 });
 
