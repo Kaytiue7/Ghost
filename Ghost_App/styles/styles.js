@@ -84,7 +84,7 @@ export default StyleSheet.create({
         textAlign: 'center',
       },
       confirmText: {
-        color: '#FF3131',
+        color: '#8bc34a',
         fontWeight: 'bold',
         position: 'absolute',
         bottom: "5%",
