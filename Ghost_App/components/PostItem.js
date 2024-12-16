@@ -13,6 +13,7 @@ import * as Permissions from "expo-permissions";
 import Toast from 'react-native-toast-message'; 
 
 import PostReplyComponent from './PostReply';
+import PostReplyItemComponent from './PostReplyItem';
 
 
 export default function PostItem({ post, username, profilePicture }) {
@@ -31,12 +32,13 @@ export default function PostItem({ post, username, profilePicture }) {
 
   const [isReplyModalVisible, setIsReplyModalVisible] = useState(false);
 
+
   const toggleModal = () => {
     setIsReplyModalVisible(!isReplyModalVisible);
     console.log(isReplyModalVisible);
 
   };
-  
+
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -370,6 +372,9 @@ export default function PostItem({ post, username, profilePicture }) {
                   </TouchableOpacity>
                 </>
               )}
+              {post.replyPostID && (
+            <PostReplyItemComponent replyPostID={post.replyPostID} />
+          )}
 
               <View style={styles.footer}>
                 <View style={styles.iconContainer}>
@@ -419,9 +424,11 @@ export default function PostItem({ post, username, profilePicture }) {
               </View>
             </View>
           </View>
+
+          
         </ScrollView>
      {isReplyModalVisible && (
-        <PostReplyComponent toggleModal={toggleModal} />
+        <PostReplyComponent toggleModal={toggleModal} postId={post.id}/>
       )}
       
     
@@ -564,4 +571,11 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Yarı şeffaf bir arka plan
     },
+
+
+
+
+
+
+
 });

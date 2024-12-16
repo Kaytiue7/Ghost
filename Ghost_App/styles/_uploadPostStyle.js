@@ -77,39 +77,100 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-
-  borderContainer: {
-    flexDirection: 'row', // Yatay hizalama
-    
-    borderWidth: 2,
-    borderColor: '#FFF',
+  commentContainer: {
+    flexDirection: 'column',
+    backgroundColor: '#333',
     borderRadius: 10,
     padding: 10,
     marginBottom: 20,
-    marginTop: 10,
-  },
-  borderImage: {
-    maxWidth: '33.33%', // Görselin yatayda 3'te 1'ini kaplaması için
-    minWidth:100,
-    height: 100,
-    borderRadius: 5,
-    padding:5, // Görsel ile metin arasına boşluk ekler
-  },
-  borderText: {
-    width: '66.66%', // Metnin yatayda 2/3'ünü kaplaması için
+    marginTop: 20,
+    
+},
+commentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+},
+commentMain: {
+  flexDirection: 'row',
+  marginBottom: 10,
+},
+commentProfileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+},
+commentUsername: {
     color: '#FFFFFF',
-    fontSize: 16,
-    paddingLeft:10,
-    fontWeight: '500',
-  },
-  
-  modalCloseButton: {
+    fontWeight: 'bold',
+},
+commentTimestamp: {
+    color: '#888',
+    fontSize: 12,
+},
+commentText: {
+  MinwWidth: '66.66%', // Metnin yatayda 2/3'ünü kaplaması için
+  color: '#FFFFFF',
+  fontSize: 16,
+  paddingLeft:10,
+  fontWeight: '500',
+},
+commentImage: {
+  width: '100%',
+  height: '100%',
+  borderRadius: 5,
+  alignItems:'center',
+  padding:5, 
+},
+commentView:{
+  maxWidth: '33.33%',
+  backgroundColor:'#1c1c1c',
+  minWidth:100,
+  height: 100,
+  borderRadius: 5,
+  alignItems:'center',
+},
+sendButton: {
+    alignSelf: 'center',
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+},
+sendButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+},
+modalCloseButton: {
     position: 'absolute',
     top: 20,
     right: 20,
-    zIndex:9999
-  },
+},
+replyVideoControl: {
+  flex: 1,
+    backgroundColor: '#FFF',
+    width:'100%',
+    height:'100%',
+},
+playPauseButton: {
+  position: 'absolute',
+  alignSelf: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  padding: 5,
+  alignItems:'center',
+  bottom:'10%',
+  borderRadius: 50,
+},
+fullscreenButton: {
+  position: 'absolute',
+  bottom: '2%',
+  left: '80%',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  padding: 2,
+  borderRadius: 50,
+},
+
 });
 
 export default styles;
