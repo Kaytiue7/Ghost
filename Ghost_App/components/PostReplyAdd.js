@@ -158,6 +158,24 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
         }
       };
     
+
+      const pickCamera = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All, // Can be set to Images or Videos if you want only one type
+          allowsEditing: true,
+          quality: 1, // Adjust this as needed
+        });
+      
+        if (!result.canceled) {
+          if (result.assets[0].type.includes('image')) {
+            setImageUri(result.assets[0].uri);
+            setVideoUri(null); // Reset video if an image is picked
+          } else if (result.assets[0].type.includes('video')) {
+            setVideoUri(result.assets[0].uri);
+            setImageUri(null); // Reset image if a video is picked
+          }
+        }
+      }
       const savePost = async () => {
         if ((text.trim() === '' && !imageUri && !videoUri) || !userId) {
           Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
@@ -215,6 +233,7 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
           createdAt: serverTimestamp(),
           imageUri: uploadedImageUrl,
           videoUri: uploadedVideoUrl, 
+          postType: "Reply",
           replyPostID: postId,
         };
     
@@ -285,12 +304,16 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
               <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
                 <Ionicons name="videocam-outline" size={30} color="white" />
               </TouchableOpacity>
+              
+              <TouchableOpacity onPress={pickCamera} style={styles.imagePickerButton}>
+                <Ionicons name="camera-outline" size={30} color="white" />
+              </TouchableOpacity>
             </View>
 
  
             <View style={styles.commentContainer}>
               <View style={styles.commentHeader}>
-                <Image source={{ uri: replyProfilePicture || 'https://cdn.pixabay.com/photo/2016/01/03/00/43/upload-1118929_1280.png' }} style={styles.commentProfileImage} />
+                <Image source={{ uri: replyProfilePicture || 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png' }} style={styles.commentProfileImage} />
                 <View style={{justifyContent:'space-between', flexDirection:'row', width:'80%'}}>
                   <Text style={styles.commentUsername}>{replyUsername} </Text>
                   <Text style={styles.commentTimestamp}>
@@ -332,7 +355,7 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
                     </View>
                   )}
                 
-                {replyImageUri &&(
+                {replyText &&(
                   <Text style={styles.commentText}>{replyText}</Text>              
                 )}
                            

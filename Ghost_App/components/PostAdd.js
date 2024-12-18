@@ -70,6 +70,25 @@ const PostAddComponent = ({ toggleModal }) => {
         }
       };
     
+      const pickCamera = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All, // Can be set to Images or Videos if you want only one type
+          allowsEditing: true,
+          quality: 1, // Adjust this as needed
+        });
+      
+        if (!result.canceled) {
+          if (result.assets[0].type.includes('image')) {
+            setImageUri(result.assets[0].uri);
+            setVideoUri(null); // Reset video if an image is picked
+          } else if (result.assets[0].type.includes('video')) {
+            setVideoUri(result.assets[0].uri);
+            setImageUri(null); // Reset image if a video is picked
+          }
+        }
+      }
+
+
       const savePost = async () => {
         if ((text.trim() === '' && !imageUri && !videoUri) || !userId) {
           Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
@@ -147,8 +166,7 @@ const PostAddComponent = ({ toggleModal }) => {
           <View style={styles.modalBackground}>
           <TouchableOpacity
             style={styles.modalCloseButton}
-            onPress={toggleModal} // Close modal on press
-          >
+            onPress={toggleModal} >
             <Ionicons name="close" size={40} color="#FFF" />
           </TouchableOpacity>
 
@@ -172,7 +190,7 @@ const PostAddComponent = ({ toggleModal }) => {
             </View>
   
             {imageUri && (
-              <View style={styles.imagePreview}>
+              <View>
                 <Image source={{ uri: imageUri }} style={styles.MainImage} />
               </View>
             )}
@@ -196,11 +214,15 @@ const PostAddComponent = ({ toggleModal }) => {
               <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
                 <Ionicons name="videocam-outline" size={30} color="white" />
               </TouchableOpacity>
+
+              <TouchableOpacity onPress={pickCamera} style={styles.imagePickerButton}>
+                <Ionicons name="camera-outline" size={30} color="white" />
+              </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={savePost} style={styles.sendButton}>
                 <Text style={styles.sendButtonText}>Paylaş</Text>
               </TouchableOpacity>
-          </View>
+            </View>
           </View>
     
           

@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
   },
   imagePickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
+    marginBottom:20,
   },
   imagePickerButton: {
     width: 50,

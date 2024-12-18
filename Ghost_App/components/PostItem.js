@@ -12,8 +12,9 @@ import * as FileSystem from 'expo-file-system';
 import * as Permissions from "expo-permissions";
 import Toast from 'react-native-toast-message'; 
 
-import PostReplyComponent from './PostReply';
+import PostReplyComponent from './PostReplyAdd';
 import PostReplyItemComponent from './PostReplyItem';
+import PostModelComponent from './CommentModal';
 
 
 export default function PostItem({ post, username, profilePicture }) {
@@ -24,6 +25,7 @@ export default function PostItem({ post, username, profilePicture }) {
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [likesCount, setLikesCount] = useState(0); // Beğeni sayısını tutan state
+  const [replysCount, setReplysCount] = useState(0);
   const [liked, setLiked] = useState(false); // Kullanıcının beğenip beğenmediğini kontrol eden state
   const hideControlsTimeout = useRef(null);
   const isFocused = useIsFocused();
@@ -31,6 +33,7 @@ export default function PostItem({ post, username, profilePicture }) {
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false);
 
   const [isReplyModalVisible, setIsReplyModalVisible] = useState(false);
+  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
 
 
   const toggleModal = () => {
@@ -38,6 +41,10 @@ export default function PostItem({ post, username, profilePicture }) {
     console.log(isReplyModalVisible);
 
   };
+  const CommentToggleModal = () => {
+    setIsCommentModalVisible(!isCommentModalVisible);
+    console.log("isCommentModalVisible",isCommentModalVisible);
+  }
 
 
   useEffect(() => {
@@ -62,6 +69,16 @@ export default function PostItem({ post, username, profilePicture }) {
       setLikesCount(snapshot.size); // Snapshot'taki belge sayısını al
     };
 
+    const fetchReplyCount = async () => {
+      const postLikesRef = firestore
+        .collection('Posts')
+        .where("postType","==","Reply")
+        .where("replyPostID","==",post.id);
+      
+      const snapshot = await postLikesRef.get();
+      setReplysCount(snapshot.size); // Snapshot'taki belge sayısını al
+    };
+
     const checkIfLiked = async () => {
       const storedUserId = await SecureStore.getItemAsync('userId');
       if (!storedUserId) return;
@@ -82,7 +99,8 @@ export default function PostItem({ post, username, profilePicture }) {
     };
 
     fetchLikesCount(); // Beğeni sayısını al
-    checkIfLiked(); // Beğeni yapılıp yapılmadığını kontrol et
+    checkIfLiked(); 
+    fetchReplyCount();// Beğeni yapılıp yapılmadığını kontrol et
 
   }, [isFocused, post.id]);
 
@@ -233,7 +251,8 @@ export default function PostItem({ post, username, profilePicture }) {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}>
-          <View style={styles.postContainer}>
+         {post.postType !== "Comment" && (
+            <View style={styles.postContainer}>
             <Image source={{ uri: profilePicture }} style={styles.profileImage} />
             <View style={styles.postContent}>
               <View style={styles.usernameContainer}>
@@ -395,11 +414,11 @@ export default function PostItem({ post, username, profilePicture }) {
                       <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>0</Text>
+                      <Text style={styles.iconText}>{replysCount}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.iconAndTextContainer}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={CommentToggleModal}>
                       <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
@@ -419,16 +438,26 @@ export default function PostItem({ post, username, profilePicture }) {
                       <Ionicons name="share-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
                   </View>
+
+                  <View style={styles.iconAndTextContainer}>
+                    <TouchableOpacity>
+                      <Ionicons name="ellipsis-horizontal-outline" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
                   
                 </View>
               </View>
             </View>
           </View>
-
-          
+        )}
         </ScrollView>
-     {isReplyModalVisible && (
+
+
+      {isReplyModalVisible && (
         <PostReplyComponent toggleModal={toggleModal} postId={post.id}/>
+      )}
+      {isCommentModalVisible && (
+        <PostModelComponent CommentToggleModal={CommentToggleModal} postId={post.id}/>
       )}
       
     

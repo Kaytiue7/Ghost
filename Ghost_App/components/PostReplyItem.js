@@ -26,7 +26,7 @@ export default function PostReplyItem({replyPostID}){
             const replyDocRef = firestore.collection('Posts').doc(replyPostID);
             const replyDocSnapshot = await replyDocRef.get();
         
-            if (replyDocSnapshot.exists) { // Make sure the document exists
+            if (replyDocSnapshot.exists) { 
               const data = replyDocSnapshot.data();
               setReplyDate(data.createdAt?.toDate() || null); // Check if 'createdAt' exists
               setReplyText(data.text);
@@ -42,10 +42,10 @@ export default function PostReplyItem({replyPostID}){
                 }
               }
             } else {
-              console.log('Post not found for the given postId');
+              console.log('postıd buluınanadı');
             }
           } catch (error) {
-            console.error('Error fetching post data:', error);
+            console.error('Error, post listenikren hata oluştu:', error);
           }
         };
     
