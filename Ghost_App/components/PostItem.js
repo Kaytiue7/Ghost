@@ -251,7 +251,7 @@ export default function PostItem({ post, username, profilePicture }) {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}>
-         {post.postType !== "Comment" && (
+        
             <View style={styles.postContainer}>
             <Image source={{ uri: profilePicture }} style={styles.profileImage} />
             <View style={styles.postContent}>
@@ -391,9 +391,11 @@ export default function PostItem({ post, username, profilePicture }) {
                   </TouchableOpacity>
                 </>
               )}
-              {post.replyPostID && (
-            <PostReplyItemComponent replyPostID={post.replyPostID} />
-          )}
+              {post.replyPostID && post.postType === "Reply" && (
+                <PostReplyItemComponent replyPostID={post.replyPostID
+                  
+                } />
+              )}
 
               <View style={styles.footer}>
                 <View style={styles.iconContainer}>
@@ -449,7 +451,6 @@ export default function PostItem({ post, username, profilePicture }) {
               </View>
             </View>
           </View>
-        )}
         </ScrollView>
 
 

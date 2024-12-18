@@ -4,14 +4,11 @@ import { firestore } from '../../firebase/firebaseConfig';
 import PostItem from '../../components/PostItem';
 
 export default function PostsScreen() {
- 
   const [posts, setPosts] = useState([]);
   const [usernames, setUsernames] = useState({});
   const [profilePictures, setProfilePictures] = useState({});
   const [viewableItems, setViewableItems] = useState([]);
   const [loading, setLoading] = useState(true); // Loading durumu ekleniyor
-
- 
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     setViewableItems(viewableItems.map((item) => item.item.id));
@@ -27,10 +24,13 @@ export default function PostsScreen() {
           ...doc.data(),
         }));
 
-        setPosts(postsData);
+        // Comment olmayanları filtreleyelim
+        const filteredPosts = postsData.filter((post) => post.postType !== 'Comment');
+
+        setPosts(filteredPosts);
         setLoading(false); // Veri alındığında loading durumu false yapılıyor
 
-        postsData.forEach(async (post) => {
+        filteredPosts.forEach(async (post) => {
           if (post.userId) {
             const userDocRef = firestore.collection('Users').doc(post.userId);
             const userDocSnapshot = await userDocRef.get();

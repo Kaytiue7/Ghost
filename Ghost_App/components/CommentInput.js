@@ -159,15 +159,11 @@ const CommentInput = ({ postId }) => {
 
   return (
     <View style={styles.commentInputContainer}>
-      <View style={styles.profileContainer}>
-        <Image
+      <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginVertical: 5 }}>
+      <Image
           source={{ uri: userData.profilePicture || 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png' }}
           style={styles.profileImage}
         />
-        <Text style={styles.username}>@{userData.username}</Text>
-      </View>
-
-      <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginVertical: 10 }}>
         <TextInput
           value={commentText}
           onChangeText={setCommentText}

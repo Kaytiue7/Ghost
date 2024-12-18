@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
       },
       headerContainer: {
         backgroundColor: '#FFF',
-        paddingVertical: 10,
+        paddingVertical: 5,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -53,18 +53,22 @@ const styles = StyleSheet.create({
       commentList: {
         flex: 1,
         backgroundColor: '#111',
+        borderWidth:1,
+        borderColor:'#000'
       },
       commentInputContainer: {
         flexDirection: 'column',
-        padding: 10,
+        paddingHorizontal: 5,
+        paddingVertical: 2,
         backgroundColor: '#333',
+        
       },
       input: {
         backgroundColor: '#444',
         color: '#FFF',
         borderRadius: 8,
         paddingHorizontal: 12,
-        height: 50,
+        height: 40,
         fontSize: 16,
         flex: 1,  // Bu, input'un genişliğini butondan kalan alanla orantılı hale getirir
       },
@@ -73,11 +77,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#007bff',
-        padding: 10,
+        padding: 7,
         marginHorizontal:10,
-        borderRadius: 50,
-        width: 50,  // Sabit genişlik
-        height: 50, // Sabit yükseklik
+        borderRadius: 20,
+        width: 40,  // Sabit genişlik
+        height: 40, // Sabit yükseklik
       },
       modalCloseButton: {
         position: 'absolute',
@@ -87,11 +91,11 @@ const styles = StyleSheet.create({
       mediaPickerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        
+        paddingVertical:5,
       },
       mediaPickerButton: {
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         borderRadius: 25,
         backgroundColor: '#4CAF50',
         justifyContent: 'center',
@@ -100,13 +104,12 @@ const styles = StyleSheet.create({
       profileContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 5,
       },
       profileImage: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        marginRight: 15,
+        marginRight: 10,
       },
       username: {
         color:'#FFFFFF',
