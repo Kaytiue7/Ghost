@@ -26,6 +26,7 @@ export default function PostItem({ post, username, profilePicture }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [likesCount, setLikesCount] = useState(0); // Beğeni sayısını tutan state
   const [replysCount, setReplysCount] = useState(0);
+  const [commentCount,setCommentCount]= useState(0);
   const [liked, setLiked] = useState(false); // Kullanıcının beğenip beğenmediğini kontrol eden state
   const hideControlsTimeout = useRef(null);
   const isFocused = useIsFocused();
@@ -76,7 +77,16 @@ export default function PostItem({ post, username, profilePicture }) {
         .where("replyPostID","==",post.id);
       
       const snapshot = await postLikesRef.get();
-      setReplysCount(snapshot.size); // Snapshot'taki belge sayısını al
+      setReplysCount(snapshot.size); 
+    };
+    const fetchCommmentCount = async () => {
+      const postLikesRef = firestore
+        .collection('Posts')
+        .where("postType","==","Comment")
+        .where("replyPostID","==",post.id);
+      
+      const snapshot = await postLikesRef.get();
+      setCommentCount(snapshot.size); 
     };
 
     const checkIfLiked = async () => {
@@ -98,13 +108,13 @@ export default function PostItem({ post, username, profilePicture }) {
       }
     };
 
-    fetchLikesCount(); // Beğeni sayısını al
+    fetchLikesCount(); 
     checkIfLiked(); 
-    fetchReplyCount();// Beğeni yapılıp yapılmadığını kontrol et
+    fetchReplyCount();
+    fetchCommmentCount();
 
   }, [isFocused, post.id]);
 
-  // Beğeni butonuna tıklama fonksiyonu
   const handleLike = async () => {
     try {
       const storedUserId = await SecureStore.getItemAsync('userId'); // Kullanıcı ID'sini alın.
@@ -393,7 +403,7 @@ export default function PostItem({ post, username, profilePicture }) {
               )}
               {post.replyPostID && post.postType === "Reply" && (
                 <PostReplyItemComponent replyPostID={post.replyPostID
-                  
+
                 } />
               )}
 
@@ -424,7 +434,7 @@ export default function PostItem({ post, username, profilePicture }) {
                       <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>0</Text>
+                      <Text style={styles.iconText}>{commentCount}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.iconAndTextContainer}>

@@ -9,7 +9,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Video } from 'expo-av';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { serverTimestamp } from 'firebase/firestore';
-import CommentInput from './CommentInput';
 import PostItem from './PostItem';
 import styles from '../styles/_commentStyle';
 
