@@ -9,6 +9,8 @@ import UserLoginType from './pages/UserLoginType';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import AddProfilePicturePage from './pages/AddProfilePicture';
+import EditUserProfilePage from './pages/EditUserProfile';
+import ForeingAccountPage from './pages/ForeingAccount';
 
 import { firestore } from './firebase/firebaseConfig';
 
@@ -76,6 +78,16 @@ export default function App() {
                 <Stack.Screen
                     name="AddProfilePicture"
                     component={AddProfilePicturePage}
+                    options={{ headerShown: false }}
+                />
+                 <Stack.Screen
+                    name="EditUserProfile"
+                    component={EditUserProfilePage}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ForeingAccount"
+                    component={ForeingAccountPage}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

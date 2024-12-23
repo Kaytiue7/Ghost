@@ -1,88 +1,111 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { firestore } from '../firebase/firebaseConfig';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import * as SecureStore from 'expo-secure-store';  // SecureStore import edildi
+import * as SecureStore from 'expo-secure-store';
 
-export default function AddProfilePicture({ navigation }) {
-  const [imageUri, setImageUri] = useState(null); 
+export default function EditProfile({ navigation }) {
+  const [bannerUri, setBannerUri] = useState(null);
+  const [profilePictureUri, setProfilePictureUri] = useState(null);
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const [userId, setUserId] = useState(null);
 
-  // Fetch userId from SecureStore on component mount
   useEffect(() => {
-    const fetchUserId = async () => {
+    const fetchUserData = async () => {
       const userId = await SecureStore.getItemAsync('userId');
       if (userId) {
-        setUserId(userId); // Set userId state
+        setUserId(userId);
+        const userDoc = await firestore.collection('Users').doc(userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          setBannerUri(userData.banner || null);
+          setProfilePictureUri(userData.profilePicture || null);
+          setUsername(userData.username || '');
+          setBio(userData.bio || '');
+        }
       }
     };
 
-    fetchUserId();
+    fetchUserData();
   }, []);
 
-  // Skip button logic
-  const skipButton = () => {
-    navigation.navigate('MainContainer');
-  };
-
-  // Image picker logic
-  const pickImage = async () => {
+  const pickImage = async (setImageUri) => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, 
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], 
+      aspect: [16, 9], // Aspect ratio for banner
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri); // Update URI if an image is selected
+      setImageUri(result.assets[0].uri);
     }
   };
 
-  // Save button logic
-  const saveButton = async () => {
-    if (userId && imageUri) {
+  const saveChanges = async () => {
+    if (userId) {
       try {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
+        const updates = {};
 
-        const filename = `_userProfilePicture/${userId}.jpg`;
-        const storageRef = ref(getStorage(), filename);
+        if (bannerUri) {
+          const bannerBlob = await fetch(bannerUri).then(res => res.blob());
+          const bannerRef = ref(getStorage(), `_userBanners/${userId}.jpg`);
+          await uploadBytes(bannerRef, bannerBlob);
+          updates.banner = await getDownloadURL(bannerRef);
+        }
 
-        await uploadBytes(storageRef, blob);
-        const downloadURL = await getDownloadURL(storageRef);
+        if (profilePictureUri) {
+          const profileBlob = await fetch(profilePictureUri).then(res => res.blob());
+          const profileRef = ref(getStorage(), `_userProfilePictures/${userId}.jpg`);
+          await uploadBytes(profileRef, profileBlob);
+          updates.profilePicture = await getDownloadURL(profileRef);
+        }
 
-        await firestore.collection('Users').doc(userId).update({
-          profilePicture: downloadURL
-        });
+        updates.username = username;
+        updates.bio = bio;
 
-        navigation.navigate('MainContainer'); // Navigate to the main content screen
+        await firestore.collection('Users').doc(userId).update(updates);
+        navigation.navigate('MainContainer');
       } catch (error) {
-        console.error('Hata oluştu:', error);
+        console.error('Error saving profile:', error);
       }
-    } else {
-      console.log('Görsel seçilmedi veya kullanıcı ID bulunamadı.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={pickImage}>
+      <TouchableOpacity onPress={() => pickImage(setBannerUri)}>
         <Image
-          style={styles.image}
-          source={{ uri: imageUri || 'https://cdn.pixabay.com/photo/2016/01/03/00/43/upload-1118929_1280.png' }} // Display the selected image or a placeholder
+          style={styles.banner}
+          source={{ uri: bannerUri || 'https://via.placeholder.com/800x300' }}
         />
       </TouchableOpacity>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.skipButton} onPress={skipButton}>
-          <Text style={styles.buttonText}>Geç</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.continueButton} onPress={saveButton}>
-          <Text style={styles.buttonText}>Devam</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => pickImage(setProfilePictureUri)}>
+        <Image
+          style={styles.profilePicture}
+          source={{ uri: profilePictureUri || 'https://via.placeholder.com/150' }}
+        />
+      </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="Kullanıcı Adı"
+        placeholderTextColor="#888"
+        value={username}
+        onChangeText={setUsername}
+      />
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        placeholder="Biyografi"
+        placeholderTextColor="#888"
+        value={bio}
+        onChangeText={setBio}
+        multiline={true}
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
+        <Text style={styles.saveButtonText}>Kaydet</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -91,49 +114,47 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#101010',
-    justifyContent: 'space-around',
+    padding: 16,
     alignItems: 'center',
   },
-  image: {
-    width: 300,
-    height: 300,
-    resizeMode: 'contain', 
-    borderRadius: 150, 
+  banner: {
+    width: '100%',
+    height: 150,
+    resizeMode: 'cover',
+    marginBottom: 16,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
+  profilePicture: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
   },
-  skipButton: {
-    backgroundColor: '#FFA500',
-    width: '40%',
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
+  inputContainer: {
+    padding: 16,
     alignItems: 'center',
-    shadowColor: '#ffffff',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 0,
-    elevation: 5,
   },
-  continueButton: {
+  input: {
+    width: '100%',
+    backgroundColor: '#1A1A1A',
+    color: '#FFF',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  saveButton: {
     backgroundColor: '#007BFF',
-    width: '40%',
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    shadowColor: '#ffffff',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 0,
-    elevation: 5,
+    marginTop: 16,
+    width: '100%',
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
+  saveButtonText: {
+    color: '#FFF',
     fontWeight: 'bold',
   },
 });

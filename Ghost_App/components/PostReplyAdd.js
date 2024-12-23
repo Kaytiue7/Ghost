@@ -228,7 +228,7 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
         }
     
         const postData = {
-          text,
+          text: text.trim() === '' ? null : text,
           userId,
           createdAt: serverTimestamp(),
           imageUri: uploadedImageUrl,

@@ -3,7 +3,7 @@ import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { firestore } from '../../firebase/firebaseConfig';
 import PostItem from '../../components/PostItem';
 
-export default function PostsScreen() {
+export default function PostsScreen({navigation}) {
   const [posts, setPosts] = useState([]);
   const [usernames, setUsernames] = useState({});
   const [profilePictures, setProfilePictures] = useState({});
@@ -14,7 +14,7 @@ export default function PostsScreen() {
     setViewableItems(viewableItems.map((item) => item.item.id));
   });
 
-  useEffect(() => {
+  useEffect(() => {    
     const unsubscribe = firestore
       .collection('Posts')
       .orderBy('createdAt', 'desc')
@@ -30,6 +30,8 @@ export default function PostsScreen() {
         setPosts(filteredPosts);
         setLoading(false); // Veri alındığında loading durumu false yapılıyor
 
+        
+        //navigation.navigate('EditUserProfile');
         filteredPosts.forEach(async (post) => {
           if (post.userId) {
             const userDocRef = firestore.collection('Users').doc(post.userId);
@@ -67,10 +69,10 @@ export default function PostsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} >
       {loading ? (
         // Loading göstergesi, veri alınırken görünür
-        <ActivityIndicator size="large" color="#FFFFFF" style={styles.loadingIndicator} />
+        <ActivityIndicator onPress={() => navigation.navigate('EditUserProfile')} size="large" color="#FFFFFF" style={styles.loadingIndicator} />
       ) : (
         <FlatList
           data={posts}

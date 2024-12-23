@@ -75,7 +75,7 @@ export default function RegisterPage({ navigation }) {
       setConfirm('Kayıt Başarılı!');
       setShowConfirm(true);
       setTimeout(() => {
-        navigation.navigate('AddProfilePicture');  // Başarıyla kayıt olduktan sonra yönlendirme
+        navigation.navigate('EditUserProfile');  // Başarıyla kayıt olduktan sonra yönlendirme
       }, 3000); 
     } catch (error) {
       console.error('Kayıt hatası:', error);

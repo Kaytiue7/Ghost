@@ -16,6 +16,8 @@ import PostReplyComponent from './PostReplyAdd';
 import PostReplyItemComponent from './PostReplyItem';
 import PostModelComponent from './CommentModal';
 
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
@@ -36,6 +38,16 @@ export default function PostItem({ post, username, profilePicture }) {
   const [isReplyModalVisible, setIsReplyModalVisible] = useState(false);
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
 
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const storedUserId = await SecureStore.getItemAsync('userId');
+      setUserId(storedUserId);
+    };
+  
+    fetchUserId();
+  }, []);
 
   const toggleModal = () => {
     setIsReplyModalVisible(!isReplyModalVisible);
@@ -46,6 +58,7 @@ export default function PostItem({ post, username, profilePicture }) {
     setIsCommentModalVisible(!isCommentModalVisible);
     console.log("isCommentModalVisible",isCommentModalVisible);
   }
+  const navigation = useNavigation();
 
 
   useEffect(() => {
@@ -261,12 +274,21 @@ export default function PostItem({ post, username, profilePicture }) {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}>
-        
             <View style={styles.postContainer}>
-            <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            <TouchableOpacity
+              style={styles.profileImage}
+              onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })
+            }>
+
+                <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            </TouchableOpacity>
+            
             <View style={styles.postContent}>
               <View style={styles.usernameContainer}>
+              <TouchableOpacity>
                 <Text style={styles.username}>@{username}</Text>
+              </TouchableOpacity>
+                
                 <Text style={styles.timestamp}>{createdAt}</Text>
               </View>
 

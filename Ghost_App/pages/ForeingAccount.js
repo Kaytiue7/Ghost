@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, FlatList, ActivityIndicator,Image,TouchableOpacity,Text,ScrollView  } from 'react-native';
-import { firestore } from '../../firebase/firebaseConfig';
-import PostItem from '../../components/PostItem';
+import { firestore } from '../firebase/firebaseConfig';
+import PostItem from '../components/PostItem';
 import * as  SecureStore from 'expo-secure-store';
-import styles from '../../styles/_accountStyle';
+import styles from '../styles/_accountStyle';
+import { serverTimestamp, where } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { useRoute } from '@react-navigation/native';
 
 
-export default function AccountScreen({navigation}) {
+export default function ForeingAccount({navigation}) {
   const [activeTab, setActiveTab] = useState('Postlar'); 
   
   const [userData, setUserData] = useState(null);
@@ -17,11 +19,16 @@ export default function AccountScreen({navigation}) {
   const [profilePictures, setProfilePictures] = useState({});
   const [viewableItems, setViewableItems] = useState([]);
   const [loading, setLoading] = useState(true); // Loading durumu ekleniyor
-  const [userId, setUserId] = useState("");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [userId, setUserId] = useState('');
 
+    const [followToSize, setFollowToSize]= useState("");
+    const [followBySize, setFollowBySize]= useState("");
 
-  const [followToSize, setFollowToSize]= useState("");
-  const [followBySize, setFollowBySize]= useState("");
+  const route = useRoute();  // Get the navigation route
+  const { foreingUserId } = route.params;
+  console.log(foreingUserId);
+  
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     setViewableItems(viewableItems.map((item) => item.item.id));
   });
@@ -37,49 +44,45 @@ export default function AccountScreen({navigation}) {
   
   useEffect(() => {
     const getUserData = () => {
-      if (userId) {
+      if (foreingUserId) {
         try {
           const unsubscribe = firestore
             .collection('Users')
-            .doc(userId)
-            .onSnapshot((userDocSnapshot) => {
-              if (userDocSnapshot.exists) {
-                setUserData(userDocSnapshot.data());
+            .doc(foreingUserId)
+            .onSnapshot((docSnapshot) => {
+              if (docSnapshot.exists) {
+                setUserData(docSnapshot.data());
               } else {
                 console.error('User not found!');
               }
             });
     
-          // Dinleyiciyi temizleme fonksiyonu döndür
+          // Dinleyiciyi temizleme fonksiyonunu döndür
           return unsubscribe;
         } catch (error) {
           console.error('Error fetching user data: ', error);
         }
-      } else {
-        console.warn('User ID is not set.');
       }
     };
 
     const getFollowStats = () => {
-      if (userId) {
+      if (foreingUserId) {
         try {
-          // `followedTo` dinleyicisi
           const unsubscribeFollowTo = firestore
             .collection('Follow')
-            .where('followedTo', '==', userId)
+            .where('followedTo', '==', foreingUserId)
             .onSnapshot((querySnapshot) => {
-              setFollowToSize(querySnapshot.size); // Takip edilen kullanıcı sayısını güncelle
+              setFollowToSize(querySnapshot.size);
             });
     
-          // `followedBy` dinleyicisi
           const unsubscribeFollowBy = firestore
             .collection('Follow')
-            .where('followedBy', '==', userId)
+            .where('followedBy', '==', foreingUserId)
             .onSnapshot((querySnapshot) => {
-              setFollowBySize(querySnapshot.size); // Takipçi sayısını güncelle
+              setFollowBySize(querySnapshot.size);
             });
     
-          // Dinleyicileri temizleme fonksiyonunu döndür
+          // Dinleyicileri temizleme fonksiyonlarını döndür
           return () => {
             unsubscribeFollowTo();
             unsubscribeFollowBy();
@@ -87,16 +90,68 @@ export default function AccountScreen({navigation}) {
         } catch (error) {
           console.error('Veri alma sırasında bir hata oluştu:', error);
         }
-      } else {
-        console.warn('Kullanıcı ID belirtilmemiş.');
       }
     };
   
-    if (userId) {
+    if (foreingUserId) {
       getUserData(); 
       getFollowStats();
     }
-  }, [userId]); // This effect will run again when userId changes
+  }, [userId]);
+  
+  useEffect(() => {
+    const checkIfFollowing = async () => {
+      if (!userId || !foreingUserId) return; // userId veya foreingUserId yoksa bekle
+      try {
+        const followSnapshot = await firestore
+          .collection('Follow')
+          .where('followedBy', '==', userId)
+          .where('followedTo', '==', foreingUserId)
+          .get();
+  
+        setIsFollowing(!followSnapshot.empty);
+      } catch (error) {
+        console.error('Error checking follow status: ', error);
+      }
+    };
+  
+    checkIfFollowing();
+  }, [userId, foreingUserId]);
+  
+  const handleFollow = async (foreingUserId) => {
+    if (isFollowing) {
+      try {
+        const followSnapshot = await firestore
+          .collection('Follow')
+          .where('followedBy', '==', userId)
+          .where('followedTo', '==', foreingUserId)
+          .get();
+  
+        followSnapshot.forEach(async (doc) => {
+          await doc.ref.delete();
+        });
+  
+        setIsFollowing(false);
+      } catch (error) {
+        console.error('Error unfollowing user: ', error);
+      }
+    } else {
+      try {
+        await firestore
+          .collection('Follow')
+          .add({
+            followedBy: userId,
+            followedTo: foreingUserId,
+            createdAt: serverTimestamp(),
+          });
+  
+        setIsFollowing(true);
+      } catch (error) {
+        console.error('Error following user: ', error);
+      }
+    }
+  };
+  
   useEffect(() => {
     const unsubscribe = firestore
       .collection('Posts')
@@ -110,15 +165,16 @@ export default function AccountScreen({navigation}) {
         let filteredPosts = postsData.filter((post) => {
           // Sekme bazlı filtreleme
           if (activeTab === "Postlar") {
-            return post.postType !== 'Comment' && post.userId === userId;
+            return post.postType !== 'Comment' && post.userId === foreingUserId
+            ;
           }
           if (activeTab === "Medya") {
-            return (post.imageUri || post.videoUri) && post.userId === userId;
+            return (post.imageUri || post.videoUri) && post.userId === foreingUserId;
           }
           if (activeTab === "Yanıtlar") {
-            return post.userId === userId;
+            return post.userId === foreingUserId;
           }
-          return post.userId === userId; // Eğer başka bir sekme yoksa userId bazlı filtreleme
+          return post.userId === foreingUserId; // Eğer başka bir sekme yoksa userId bazlı filtreleme
         });
 
         setPosts(filteredPosts);
@@ -143,15 +199,21 @@ export default function AccountScreen({navigation}) {
       });
   
     return () => unsubscribe();
-  }, [activeTab]); 
+  }, [activeTab]); // activeTab değiştiğinde yeniden çalışacak
+
+
+
 
   const formatDate = (timestamp) => {
+    // Convert Firebase timestamp to JavaScript Date object
     const date = timestamp ? timestamp.toDate() : null;
   
+    // Check if the date is valid before formatting
     if (!date || isNaN(date.getTime())) {
-      return null; 
+      return null; // Return null if the date is invalid
     }
-    return format(date, 'dd.MM.yyyy');
+  
+    return format(date, 'dd.MM.yyyy'); // Format the date to 'DD.MM.YYYY'
   };
 
 
@@ -201,16 +263,24 @@ export default function AccountScreen({navigation}) {
               )}
 
             {/* Format the date and display it */}
-            <Text style={styles.date}>
-              {userData?.createdAt ? `${formatDate(userData.createdAt)} tarihinde katıldı` : 'Katılmadı'}
-            </Text>
+             <Text style={styles.date}>
+                {userData?.createdAt ? `${formatDate(userData.createdAt)} tarihinde katıldı` : 'Katılmadı'}
+              </Text>
               <Text style={styles.followInfo}>{followBySize} takip edilen · {followToSize} takipçi</Text>
             </View>
           </View>
           {/* Kullanıcı Bilgileri */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditUserProfile')}>
-              <Text style={styles.editbuttonText}>Profili Düzenle</Text>
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                isFollowing ? styles.followingButton : styles.notFollowingButton,
+              ]}
+              onPress={() => handleFollow(foreingUserId)}
+            >
+              <Text style={styles.followbuttonText}>
+                {isFollowing ? 'Takibi Bırak' : 'Takip Et'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
