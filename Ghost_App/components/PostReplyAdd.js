@@ -271,7 +271,7 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
   
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={styles.StandartInputStyle}
                 placeholder="Bir şeyler yazın..."
                 placeholderTextColor="#FFFFFF"
                 value={text}
@@ -297,15 +297,15 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
             )}
   
             <View style={styles.imagePickerContainer}>
-              <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
+              <TouchableOpacity onPress={pickImage} style={styles.GreenCirclePickerButton}>
                 <Ionicons name="image-outline" size={30} color="white" />
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={pickVideo} style={styles.imagePickerButton}>
+              <TouchableOpacity onPress={pickVideo} style={styles.GreenCirclePickerButton}>
                 <Ionicons name="videocam-outline" size={30} color="white" />
               </TouchableOpacity>
               
-              <TouchableOpacity onPress={pickCamera} style={styles.imagePickerButton}>
+              <TouchableOpacity onPress={pickCamera} style={styles.GreenCirclePickerButton}>
                 <Ionicons name="camera-outline" size={30} color="white" />
               </TouchableOpacity>
             </View>

@@ -168,7 +168,7 @@ export default function AccountScreen({ navigation }) {
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.editButton}
+              style={styles.BorderButtonStyle}
               onPress={() => navigation.navigate('EditUserProfile')}
             >
               <Text style={styles.editbuttonText}>Profili Düzenle</Text>

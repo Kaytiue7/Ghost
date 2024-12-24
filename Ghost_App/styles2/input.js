@@ -1,6 +1,26 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
+
+      StandartInputStyle: {
+        height: 40,
+        borderColor: '#ccc',
+        color:'#FFFFFF',
+        borderBottomWidth: 2,
+        paddingLeft: 10,
+        marginBottom: 20,
+      },
+
+      BlackInputStyle: {
+        backgroundColor: '#444',
+        color: '#FFF',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        height: 40,
+        fontSize: 16,
+        flex: 1,  
+      },
+
       //Alltan beyaz şeritli siyah input
       BottomInputStyle: {
         borderBottomWidth: 2,
@@ -34,6 +54,7 @@ const styles = StyleSheet.create({
       InputFocusedBorderStyle: {
         borderColor: '#246DDD',
       },
+      
 });
 
 export default styles;

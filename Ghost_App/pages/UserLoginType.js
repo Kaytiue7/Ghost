@@ -67,7 +67,10 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       marginTop: 16,
       width: 130,
-  },
+      shadowColor: '#000',
+      shadowRadius: 10,
+      elevation: 10,
+    },
   OrangeStandartButton: {
     backgroundColor: '#FF4500',
     padding: 12,
@@ -76,6 +79,9 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       marginTop: 16,
       width: 130,
+      shadowColor: '#000',
+      shadowRadius: 10,
+      elevation: 10,
   },
   buttonText: {
     color: "#fff",

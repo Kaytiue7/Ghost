@@ -57,7 +57,7 @@ export default StyleSheet.create({
         alignItems: 'flex-end',
         flex: 1,
       },
-      editButton: {
+      BorderButtonStyle: {
         backgroundColor: 'transparent',
         paddingVertical: 8,
         paddingHorizontal: 20,

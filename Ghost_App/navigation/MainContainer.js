@@ -75,7 +75,7 @@ export default function MainContainer() {
         <PostAddComponent toggleModal={toggleModal} />
       )}
 
-      <TouchableOpacity style={styles.fabButton} onPress={toggleModal}>
+      <TouchableOpacity style={styles.OrangeCirclePickerButton} onPress={toggleModal}>
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
     </View>

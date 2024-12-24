@@ -357,7 +357,7 @@ export default function PostItem({ post, username, profilePicture }) {
                         style={styles.modalImage}
                       />
                       <TouchableOpacity
-                        style={styles.modalCloseButton}
+                        style={styles.X_CloseButton}
                         onPress={() => setIsImageModalVisible(false)}>
                         <Ionicons name="close" size={40} color="#FFF" />
                       </TouchableOpacity>
@@ -454,7 +454,7 @@ export default function PostItem({ post, username, profilePicture }) {
                           }}
                         />
                         <TouchableOpacity
-                          style={styles.modalCloseButton}
+                          style={styles.X_CloseButton}
                           onPress={() => {
                             handlePlayPause();
                             setIsVideoModalVisible(false);
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
-  modalCloseButton: {
+  X_CloseButton: {
     position: 'absolute',
     top: 40,
     right: 20,

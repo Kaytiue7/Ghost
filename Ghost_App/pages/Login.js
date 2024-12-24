@@ -96,7 +96,7 @@ export default function LoginPage({ navigation }) {
           onChangeText={setPassword}
         />
         
-        <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+        <TouchableOpacity onPress={handleLogin} style={styles.DarkBlueStandartButton}>
           <Text style={styles.loginButtonText}>Giriş Yap</Text>
         </TouchableOpacity>
 

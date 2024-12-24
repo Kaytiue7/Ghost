@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-    modalBackground: {
+    ModalBackground: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'flex-end',
+        
       },
       modalContent: {
         width: '100%',
@@ -63,21 +63,22 @@ const styles = StyleSheet.create({
         backgroundColor: '#333',
         
       },
-      input: {
+
+      BlackInputStyle: {
         backgroundColor: '#444',
         color: '#FFF',
         borderRadius: 8,
         paddingHorizontal: 12,
         height: 40,
         fontSize: 16,
-        flex: 1,  // Bu, input'un genişliğini butondan kalan alanla orantılı hale getirir
+        flex: 1,  
       },
       
-      sendButton: {
+      BlueCirlePickerButon: {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#007bff',
-        padding: 7,
+        padding: 10,
         marginHorizontal:10,
         borderRadius: 20,
         width: 40,  // Sabit genişlik
@@ -88,12 +89,7 @@ const styles = StyleSheet.create({
         top: 40,
         right: 20,
       },
-      mediaPickerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        paddingVertical:5,
-      },
-      mediaPickerButton: {
+      GreenCirclePickerButtonMini: {
         width: 40,
         height: 40,
         borderRadius: 25,
@@ -105,7 +101,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
       },
-      profileImage: {
+      ProfilePictureMini: {
         width: 40,
         height: 40,
         borderRadius: 20,
@@ -116,7 +112,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
       },
-      MainImage: {
+      MediaStyle: {
         width: '100%',
         height: 300,
         marginBottom: 10,

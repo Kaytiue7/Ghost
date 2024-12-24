@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  input: {
+  StandartInputStyle: {
     height: 40,
     borderColor: '#ccc',
     color:'#FFFFFF',
@@ -43,16 +43,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sendButton: {
-    flexDirection: 'row',
-    width: '40%',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    elevation: 3,
-    alignSelf: 'center',
+    backgroundColor: '#007BFF',
+        padding: 12,
+        borderRadius: 9999,
+        alignItems: 'center',
+        alignSelf: 'center',
+        width: 130,
+        shadowColor: '#000',
+        shadowRadius: 10,
+        elevation: 10,
   },
   sendButtonText: {
     fontSize: 16,
@@ -70,13 +69,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginBottom:20,
   },
-  imagePickerButton: {
+  GreenCirclePickerButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+      shadowRadius: 10,
+      elevation: 10,
   },
   commentContainer: {
     flexDirection: 'column',
@@ -131,13 +133,6 @@ commentView:{
   height: 100,
   borderRadius: 5,
   alignItems:'center',
-},
-sendButton: {
-    alignSelf: 'center',
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 30,
 },
 sendButtonText: {
     color: '#FFF',

@@ -11,6 +11,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { serverTimestamp } from 'firebase/firestore';
 import PostItem from './PostItem';
 import styles from '../styles/_commentStyle';
+import tailwind from 'tailwind-react-native-classnames';
+
 
 const CommentModal = ({ CommentToggleModal, postId }) => {
   const [comments, setComments] = useState([]);
@@ -22,9 +24,9 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
 
   const [commentText, setCommentText] = useState('');
   const [imageUri, setImageUri] = useState(null);
-  const [videoUri, setVideoUri] = useState(null); // 'image' or 'video'
+  const [videoUri, setVideoUri] = useState(null); 
   const [userId, setUserId] = useState('');
-  const [userData, setUserData] = useState(null); // State to store user data
+  const [userData, setUserData] = useState(null); 
 
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
         setUserId(storedUserId);
       };
   
-      // Fetch user data after getting the userId
+      // kullanıcı veirleir
       const fetchUserData = async () => {
         if (userId) {
           try {
@@ -49,9 +51,8 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
   
       fetchUserId();
       fetchUserData();
-    }, [userId]); // Only run fetchUserData when userId changes
+    }, [userId]); 
   
-    // Function to handle picking an image
     const pickImage = async () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -95,8 +96,7 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
         }
       }
     };
-  
-    // Function to handle comment submission
+
     const savePost = async () => {
       if (!((commentText.trim() ||( imageUri || videoUri)) && userId)) {
         Alert.alert('Hata', 'Metin boş veya kullanıcı kimliği eksik.');
@@ -106,7 +106,7 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
       let uploadedImageUrl = null;
       let uploadedVideoUrl = null;
   
-      // Fotoğraf yükleme
+
       if (imageUri) {
        
           const storage = getStorage();
@@ -119,14 +119,10 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
           console.log('Fotoğraf başarıyla yüklendi.');
   
           uploadedImageUrl = await getDownloadURL(imageRef);
-          console.log('Fotoğraf URL:', uploadedImageUrl);
-        
-        
+          console.log('Fotoğraf URL:', uploadedImageUrl);   
       }
-  
-      // Video yükleme
+
       if (videoUri) {
-        
           const storage = getStorage();
           const uniqueFileName = `${userId}_${Date.now()}`;
           const videoRef = ref(storage, `_postVideoFile/${uniqueFileName}`);
@@ -177,8 +173,6 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
           id: doc.id,
           ...doc.data(),
         }));
-
-        // Firestore'dan gelen veriyi filtrele
         const filteredComments = postsData.filter(
           (post) => post.replyPostID === postId && post.postType === 'Comment'
         );
@@ -209,7 +203,7 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
 
   const renderPost = ({ item: post }) => {
     const username = usernames[post.userId];
-    const profilePicture = profilePictures[post.userId]; // `post.id` yerine `post.userId` kullanılıyor.
+    const profilePicture = profilePictures[post.userId]; 
     const isFocused = viewableItems.includes(post.id);
 
     return (
@@ -224,22 +218,22 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
 
   return (
     <Modal transparent animationType="slide" visible={true}>
-      <View style={styles.modalBackground}>
+      <View style={styles.ModalBackground}>
         <TouchableOpacity onPress={CommentToggleModal} style={styles.overlay} activeOpacity={1} />
 
-        <View style={styles.modalContent}>
-          <View style={styles.dragHandleContainer}>
+        <View className="w-full h-4/5 bg-gray-800 rounded-t-3xl overflow-hidden" >
+          <View className='items-center py-2 bg-white rounded-t-3xl'>
             <TouchableOpacity style={styles.dragHandle} onPress={CommentToggleModal} />
           </View>
 
-          <View style={styles.headerContainer}>
+          <View className='bg-white py-2 items-center justify-center'>
             <Text style={styles.headerText}>Yorumlar</Text>
           </View>
 
           {loading ? (
             <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
           ) : (
-            <View style={styles.commentList}>
+            <View className='flex-1 bg-gray-900 border border-black'>
               <FlatList
                 data={comments}
                 renderItem={renderPost}
@@ -251,38 +245,38 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
               />
             </View>
                 )}
-          <View style={styles.commentInputContainer}>
-            <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginVertical: 5 }}>
+          <View className='flex-col p-3 bg-gray-700'>
+            <View className='flex-row items-center justify-between my-2'>
             <Image
               source={{
                 uri: userData && userData.profilePicture
                   ? userData.profilePicture
                   : 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png',
               }}
-              style={styles.profileImage}
+              style={styles.ProfilePictureMini}
 />
               <TextInput
                 value={commentText}
                 onChangeText={setCommentText}
                 placeholder="Yorum Ekle..."
                 placeholderTextColor="#aaa"
-                style={styles.input}
+                style={styles.BlackInputStyle}
               />
-              <TouchableOpacity onPress={savePost} style={styles.sendButton}>
-                <Ionicons name="send" size={24} color="#FFF" />
+              <TouchableOpacity onPress={savePost} style={styles.BlueCirlePickerButon}>
+                <Ionicons name="send" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
 
             {imageUri && (
-              <View style={styles.imagePreview}>
-                <Image source={{ uri: imageUri }} style={styles.MainImage} />
+              <View>
+                <Image source={{ uri: imageUri }} style={styles.MediaStyle} />
               </View>
             )}
 
             {videoUri && (
               <View>
                 <Video
-                  style={styles.MainImage}
+                  style={styles.MediaStyle}
                   source={{ uri: videoUri }}
                   isLooping
                   resizeMode="contain"
@@ -291,17 +285,18 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
               </View>
             )}
 
-            <View style={styles.mediaPickerContainer}>
-              <TouchableOpacity onPress={pickImage} style={styles.mediaPickerButton}>
-                <Ionicons name="image-outline" size={30} color="white" />
+            <View style={{flexDirection:'row',paddingBottom:5,justifyContent:'space-evenly'}}>
+
+              <TouchableOpacity onPress={pickImage} style={styles.GreenCirclePickerButtonMini}>
+                <Ionicons name="image-outline" size={25} color="white" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={pickVideo} style={styles.mediaPickerButton}>
-                <Ionicons name="videocam-outline" size={30} color="white" />
+              <TouchableOpacity onPress={pickVideo} style={styles.GreenCirclePickerButtonMini}>
+                <Ionicons name="videocam-outline" size={25} color="white" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={pickCamera} style={styles.mediaPickerButton}>
-                <Ionicons name="camera-outline" size={30} color="white" />
+              <TouchableOpacity onPress={pickCamera} style={styles.GreenCirclePickerButtonMini}>
+                <Ionicons name="camera-outline" size={25} color="white" />
               </TouchableOpacity>
             </View>
           </View>
@@ -311,4 +306,4 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
   );
 };
 
-export default CommentModal;
+export default CommentModal;
