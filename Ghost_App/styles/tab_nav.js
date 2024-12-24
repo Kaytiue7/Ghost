@@ -15,14 +15,16 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   headerStyle: {
-    backgroundColor: '#000',
-    shadowOpacity: 0.6,
-    shadowColor: '#ffffff',
+    backgroundColor: '#fff',
+    shadowOpacity: 1,
+    shadowColor: '#000',
     elevation: 10,
+    height:32,
   },
   headerImage: {
-    width: 120,
-    height: 50,
+    width: 45,
+    height:45,
+    alignSelf: 'center',
     resizeMode: 'contain',
   },
   modalStyle: {

@@ -39,14 +39,17 @@ export default StyleSheet.create({
         width: '100%',
         marginBottom: 15,
       },
-      input: {
+      BottomInputStyle: {
         borderBottomWidth: 2,
         borderBottomColor: '#FFF', 
         padding: 10,
+        paddingLeft:15,
         fontSize: 16,
         marginTop: 20,
         width: "100%",
         color: '#FFFFFF',
+        borderTopRightRadius: 8,
+        borderTopLeftRadius: 8,
         backgroundColor: '#292929',
       },
       loginButton: {

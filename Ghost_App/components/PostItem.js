@@ -17,19 +17,22 @@ import PostReplyItemComponent from './PostReplyItem';
 import PostModelComponent from './CommentModal';
 
 import { useNavigation } from '@react-navigation/native';
+import { serverTimestamp } from '@firebase/firestore';
 
 
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false); //bu true olursa video otomaitk başlar
+  const [isPlaying, setIsPlaying] = useState(false); 
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [likesCount, setLikesCount] = useState(0); // Beğeni sayısını tutan state
+  const [likesCount, setLikesCount] = useState(0); 
+  const [saveCount, setSaveCount] = useState(0);
   const [replysCount, setReplysCount] = useState(0);
   const [commentCount,setCommentCount]= useState(0);
-  const [liked, setLiked] = useState(false); // Kullanıcının beğenip beğenmediğini kontrol eden state
+  const [liked, setLiked] = useState(false); 
+  const [saved,setSaved] = useState(false);
   const hideControlsTimeout = useRef(null);
   const isFocused = useIsFocused();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
@@ -156,6 +159,7 @@ export default function PostItem({ post, username, profilePicture }) {
         await postLikesRef.add({
           postId: post.id,
           userId: storedUserId,
+          createdAt: serverTimestamp(),
         });
         console.log(`Post ${post.id} için kullanıcı ${storedUserId} beğenisi eklendi.`);
         setLikesCount(likesCount + 1); // Beğeni sayısını güncelle
@@ -165,6 +169,45 @@ export default function PostItem({ post, username, profilePicture }) {
       console.error('Beğeni işlemi sırasında hata oluştu:', error);
     }
   };
+
+  handleSave = async () => {
+  try{
+    const storedUserId = await SecureStore.getItemAsync('userId');
+    if (!storedUserId) {
+      console.log('Kullanıcı ID bulunamadı.');
+      return;
+    }
+    const postSaveRef = firestore.collection('Posts')
+    .doc(post.id)
+    .collection('UsersSaved');
+
+    const querySnapshot = await postSaveRef
+    .where('userId', '==', storedUserId)
+    .limit(1)
+    .get();
+
+    if (!querySnapshot.empty) {
+      const docId = querySnapshot.docs[0].id;
+      await postSaveRef.doc(docId).delete();
+      console.log(`Post ${post.id} için kullanıcı ${storedUserId} kaydedilenlerden kaldırıldı.`);
+      setSaveCount(saveCount - 1); // Kaydetme sayısını güncelle
+      setSaved(false); // Kaydetme kaldırıldı
+    }else{
+      await postSaveRef.add({
+        postId: post.id,
+        userId: storedUserId,
+        createdAt: serverTimestamp(),
+      });
+        console.log(`Post ${post.id} için kullanıcı ${storedUserId} kaydedilenlerine eklendi.`);
+        setSaveCount(saveCount + 1); // Kaydetme sayısını güncelle
+        setSaved(true); // Kullanıcı kaydetti
+      }
+    } catch (error) {
+      console.error('Kaydetme işlemi sırasında hata oluştu:', error);
+    }
+  };
+    
+
 
   // Sayfa odaktan çıkarsa videoyu durdur
   useEffect(() => {
@@ -270,7 +313,7 @@ export default function PostItem({ post, username, profilePicture }) {
     : 'Bilinmeyen Tarih';
 
   return (
-    <View>  
+    <View style={styles.container}>  
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}>
@@ -460,11 +503,11 @@ export default function PostItem({ post, username, profilePicture }) {
                     </TouchableOpacity>
                   </View>
                   <View style={styles.iconAndTextContainer}>
-                    <TouchableOpacity>
-                      <Ionicons name="bookmark-outline" size={24} color="#FFF" />
+                    <TouchableOpacity onPress={handleSave}>
+                      <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={24} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>0</Text>
+                      <Text style={styles.iconText}>{saveCount}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.iconAndTextContainer}>
@@ -500,17 +543,15 @@ export default function PostItem({ post, username, profilePicture }) {
 
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   postContainer: {
     flexDirection: 'row',
-    backgroundColor: '#1C1C1E',
-    borderRadius: 10,
     padding: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 5,
-    elevation: 3,
+    borderBlockColor:'rgba(255, 255, 255, 0.6)',
+    borderBottomWidth:0.5,
+
   },
   profileImage: {
     width: 60,

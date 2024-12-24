@@ -140,9 +140,9 @@ export default function EditProfile({ navigation }) {
 
       <View style={styles.inputContainer}>
         <Text style={[styles.label, isFocused && styles.labelfocused]}>İsim</Text>
-        <View style={[styles.inputWrapper, isFocused && styles.inputFocusedWrapper]}>
+        <View style={[styles.InputBorderStyle, isFocused && styles.InputFocusedBorderStyle]}>
           <TextInput
-            style={styles.input}
+            style={styles.BorderedInputStyle}
             placeholder="Yazınız"
             placeholderTextColor="#888"
             onFocus={() => setIsFocused(true)}
@@ -153,9 +153,9 @@ export default function EditProfile({ navigation }) {
         </View>
 
         <Text style={[styles.label, isFocusedBio && styles.labelfocused]}>Biyografi</Text>
-        <View style={[styles.inputWrapper, isFocusedBio && styles.inputFocusedWrapper]}>
+        <View style={[styles.InputBorderStyle, isFocusedBio && styles.InputFocusedBorderStyle]}>
           <TextInput
-            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+            style={[styles.BorderedInputStyle, { height: 100, textAlignVertical: 'top' }]}
             placeholder="Biyografi"
             placeholderTextColor="#888"
             onFocus={() => setIsFocusedBio(true)}
@@ -167,7 +167,7 @@ export default function EditProfile({ navigation }) {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
+      <TouchableOpacity style={styles.BlueStandartButton} onPress={saveChanges}>
         <Text style={styles.saveButtonText}>Kaydet</Text>
       </TouchableOpacity>
     </View>
@@ -201,27 +201,29 @@ const styles = StyleSheet.create({
       fontSize: 16,
       marginBottom: 4,
       marginLeft: 8,
+      
     },
     labelfocused: {
       color: '#246DDD',
     },
-    inputWrapper: {
+    InputBorderStyle: {
       borderWidth: 2,
       borderColor: '#888',
       borderRadius: 8,
       marginBottom: 10,
     },
-    input: {
+    BorderedInputStyle: {
       backgroundColor: 'transparent',
       color: '#FFF',
       padding: 12,
       borderRadius: 8,
       fontSize: 16,
+      
     },
-    inputFocusedWrapper: {
+    InputFocusedBorderStyle: {
       borderColor: '#246DDD',
     },
-    saveButton: {
+    BlueStandartButton: {
       backgroundColor: '#007BFF',
       padding: 12,
       borderRadius: 9999,

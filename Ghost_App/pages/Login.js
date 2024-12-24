@@ -80,7 +80,7 @@ export default function LoginPage({ navigation }) {
         <Text style={styles.subtitle}>Kullanıcı Bilgilerinizi Giriniz</Text>
         
         <TextInput
-          style={styles.input}
+          style={styles.BottomInputStyle}
           placeholder="Kullanıcı Adını Giriniz"
           placeholderTextColor="#6B6B6B"
           value={username}
@@ -88,7 +88,7 @@ export default function LoginPage({ navigation }) {
         />
         
         <TextInput
-          style={styles.input}
+          style={styles.BottomInputStyle}
           placeholder="Şifrenizi Giriniz"
           placeholderTextColor="#6B6B6B"
           secureTextEntry

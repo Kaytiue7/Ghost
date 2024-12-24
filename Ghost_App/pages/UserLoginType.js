@@ -12,13 +12,13 @@ export default function UserLoginType({ navigation }) {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
-          style={styles.loginButton} 
+          style={styles.BlueStandartButton} 
           onPress={() => navigation.navigate('Login')}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={styles.signupButton}
+          style={styles.OrangeStandartButton}
           onPress={() => navigation.navigate('Register')}>
           <Text style={styles.buttonText}>Kayıt Ol</Text>
         </TouchableOpacity>
@@ -26,7 +26,7 @@ export default function UserLoginType({ navigation }) {
     </View>
   );
 }
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -59,27 +59,23 @@ const styles = StyleSheet.create({
     marginTop: "10%",
     gap: 10,
   },
-  signupButton: {
-    backgroundColor: "#FF4500",
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 50,
-    marginBottom: 10,
-    shadowColor: "#FF6347",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+  BlueStandartButton: {
+    backgroundColor: '#007BFF',
+    padding: 12,
+      borderRadius: 9999,
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginTop: 16,
+      width: 130,
   },
-  loginButton: {
-    backgroundColor: "#1E90FF",
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 50,
-    marginBottom: 10,
-    shadowColor: "#4682B4",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+  OrangeStandartButton: {
+    backgroundColor: '#FF4500',
+    padding: 12,
+      borderRadius: 9999,
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginTop: 16,
+      width: 130,
   },
   buttonText: {
     color: "#fff",

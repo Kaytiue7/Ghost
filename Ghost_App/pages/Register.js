@@ -94,14 +94,14 @@ export default function RegisterPage({ navigation }) {
         <Text style={styles.subtitle}>Kullanıcı Bilgilerinizi Giriniz</Text>
 
         <TextInput
-          style={styles.input}
+          style={styles.BottomInputStyle}
           placeholder="Kullanıcı Adını Giriniz"
           placeholderTextColor="#6B6B6B"
           value={username}
           onChangeText={(text) => handleInputChange(text, 'username')} 
         />
         <TextInput
-          style={styles.input}
+          style={styles.BottomInputStyle}
           placeholder="Şifrenizi Giriniz"
           placeholderTextColor="#6B6B6B"
           secureTextEntry

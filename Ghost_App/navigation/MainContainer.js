@@ -55,12 +55,7 @@ export default function MainContainer() {
           tabBarInactiveTintColor: '#555555',
           tabBarStyle: styles.tabBar,
           headerStyle: styles.headerStyle,
-          headerTitle: () => (
-            <Image
-              source={require('../assets/whiteghost.png')}
-              style={styles.headerImage}
-            />
-          ),
+          
           headerTitleAlign: 'center',
         })}>
         <Tab.Screen name={postName} component={PostScreen} options={{ headerShown: true }} />

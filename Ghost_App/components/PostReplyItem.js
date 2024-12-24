@@ -113,7 +113,7 @@ export default function PostReplyItem({replyPostID}){
 const styles = StyleSheet.create({
     replyContainer: {
         flexDirection: 'column',
-        backgroundColor: '#333',
+        backgroundColor: '#212121',
         borderRadius: 10,
         padding: 10,
         marginBottom: 20,
