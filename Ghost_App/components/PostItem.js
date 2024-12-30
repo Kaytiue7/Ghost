@@ -329,14 +329,14 @@ export default function PostItem({ post, username, profilePicture }) {
             </TouchableOpacity>
             
             <View style={{flex:1}}>
-              <View style={{flexDirection: 'row',  justifyContent: 'space-between',alignItems:'center', marginBottom: 5}}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between',alignItems:'center', marginBottom: 5}}>
               <TouchableOpacity>
-                <Text style={[stylesText.whiteMedium,{fontFamily: 'WorkSans-SemiBold',}]} onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })}>@{username}</Text>
+                <Text style={stylesText.whiteMedium} onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })}>@{username}</Text>
               </TouchableOpacity>
                 <Text style={stylesText.whiteDarkVerySmall}>{createdAt}</Text>
               </View>
 
-              {post.text && <Text style={[stylesText.whiteSmall, { marginBottom: 10, fontFamily: 'WorkSans-Regular', }]}>{post.text}</Text>}
+              {post.text && <Text style={[stylesText.whiteSmall, { marginBottom: 10 }]}>{post.text}</Text>}
 
 
               {post.imageUri && (

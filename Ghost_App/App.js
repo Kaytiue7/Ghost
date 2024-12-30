@@ -9,7 +9,7 @@ import MainContainer from './navigation/MainContainer';
 import UserLoginType from './pages/UserLoginType';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
-import AddProfilePicturePage from './pages/AddProfilePicture';
+import SearchResultsPage from './pages/SearchResults';
 import EditUserProfilePage from './pages/EditUserProfile';
 import ForeingAccountPage from './pages/ForeingAccount';
 
@@ -96,8 +96,8 @@ export default function App() {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="AddProfilePicture"
-                    component={AddProfilePicturePage}
+                    name="SearchResults"
+                    component={SearchResultsPage}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

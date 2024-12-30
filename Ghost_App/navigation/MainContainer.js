@@ -55,7 +55,6 @@ export default function MainContainer() {
           tabBarInactiveTintColor: '#555555',
           tabBarStyle: styles.tabBar,
           headerStyle: styles.headerStyle,
-          
           headerTitleAlign: 'center',
         })}>
         <Tab.Screen name={postName} component={PostScreen} options={{ headerShown: true }} />
