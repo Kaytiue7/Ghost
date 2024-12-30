@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ScrollView, RefreshControlComponent, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Modal, ScrollView, RefreshControlComponent, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -18,6 +18,13 @@ import PostModelComponent from './CommentModal';
 
 import { useNavigation } from '@react-navigation/native';
 import { serverTimestamp } from '@firebase/firestore';
+
+
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
 
 
 export default function PostItem({ post, username, profilePicture }) {
@@ -313,51 +320,47 @@ export default function PostItem({ post, username, profilePicture }) {
     : 'Bilinmeyen Tarih';
 
   return (
-    <View style={styles.container}>  
+    <View style={{flex:1}}>  
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}>
-            <View style={styles.postContainer}>
-            <TouchableOpacity
-              style={styles.profileImage}
-              onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })
+            <View style={{flexDirection: 'row', padding: 10, borderBlockColor:'rgba(255, 255, 255, 0.6)', borderBottomWidth:0.5,}}>
+            <TouchableOpacity onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })
             }>
-
-                <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+              <Image source={{ uri: profilePicture }} style={stylesMedia.ProfilePictureMax} />
             </TouchableOpacity>
             
-            <View style={styles.postContent}>
-              <View style={styles.usernameContainer}>
+            <View style={{flex:1}}>
+              <View style={{flexDirection: 'row',  justifyContent: 'space-between',alignItems:'center', marginBottom: 10}}>
               <TouchableOpacity>
-                <Text style={styles.username}>@{username}</Text>
+                <Text style={stylesText.whiteMedium} onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })}>@{username}</Text>
               </TouchableOpacity>
-                
-                <Text style={styles.timestamp}>{createdAt}</Text>
+                <Text style={stylesText.whiteDarkVerySmall}>{createdAt}</Text>
               </View>
 
-              {post.text && <Text style={styles.postText}>{post.text}</Text>}
+              {post.text && <Text style={[stylesText.whiteSmall, { marginBottom: 10 }]}>{post.text}</Text>}
+
 
               {post.imageUri && (
                 <>
                   <TouchableOpacity
                     onPress={() => setIsImageModalVisible(true)}>
-                    <Image source={{ uri: post.imageUri }} style={styles.postImage}></Image>
-                    <TouchableOpacity onPress={handleDownload} style={styles.handleDownloadButton}>
-                          <Ionicons name="download" size={30} color="#FFF" />
-                        </TouchableOpacity>
-                  </TouchableOpacity>
+                    <Image source={{ uri: post.imageUri }} style={stylesMedia.MediaMax}></Image>
+                    <TouchableOpacity onPress={handleDownload} style={{ position: 'absolute' ,top: '10%', left: '95%', transform: [{ translateX: -25 }, { translateY: -25 }], zIndex: 2,}}>
+                      <Ionicons name="download" size={30} color="#FFF" />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
                   <Modal
                     visible={isImageModalVisible}
                     transparent={true}
                     onRequestClose={() => setIsImageModalVisible(false)}
                   >
-                    <View style={styles.modalContainer} onPress={() => setIsImageModalVisible(false)}>
+                    <View style={stylesView.Modal} onPress={() => setIsImageModalVisible(false)}>
                       <ImageViewer 
                         imageUrls={[{ url: post.imageUri }]}
-                        style={styles.modalImage}
+                        style={stylesMedia.MediaModal}
                       />
                       <TouchableOpacity
-                        style={styles.X_CloseButton}
+                        style={stylesButton.X_CloseButton}
                         onPress={() => setIsImageModalVisible(false)}>
                         <Ionicons name="close" size={40} color="#FFF" />
                       </TouchableOpacity>
@@ -369,13 +372,13 @@ export default function PostItem({ post, username, profilePicture }) {
               {post.videoUri && (
                 <>
                   <TouchableOpacity
-                    style={styles.videoWrapper}
+                    style={{backgroundColor: '#000', borderRadius: 20, marginBottom: 10, position: 'relative'}}
                     onPress={() => setShowControls(!showControls)}
                     activeOpacity={1}
                   >
                     <Video
                       ref={videoRef}
-                      style={styles.postVideo}
+                      style={stylesMedia.MediaMax}
                       source={{ uri: post.videoUri }}
                       resizeMode="contain"
                       shouldPlay={isPlaying} // Video oynatma durumu
@@ -386,19 +389,19 @@ export default function PostItem({ post, username, profilePicture }) {
                         setCurrentTime(status.positionMillis);
 
                         if (status.didJustFinish) {
-                          videoRef.current.setPositionAsync(0); // Videoyu başa sar
-                          videoRef.current.playAsync(); // Yeniden oynat
+                          videoRef.current.setPositionAsync(0);
+                          videoRef.current.playAsync(); 
                         }
                       }}
                     />
                     {showControls && (
                       <>
-                        <TouchableOpacity onPress={handleDownload} style={styles.handleDownloadButton}>
+                        <TouchableOpacity onPress={handleDownload} style={{ position: 'absolute' ,top: '10%', left: '95%', transform: [{ translateX: -25 }, { translateY: -25 }], zIndex: 2,}}>
                           <Ionicons name="download" size={30} color="#FFF" />
                         </TouchableOpacity>
                         <TouchableOpacity
                           onPress={handlePlayPause}
-                          style={styles.playPauseButton}
+                          style={{position: 'absolute', top: '50%', alignSelf: 'center', transform: [{ translateX: 0 }, { translateY: -25 }], zIndex: 2,}}
                         >
                           <Ionicons
                             name={isPlaying ? 'pause' : 'play'}
@@ -406,7 +409,7 @@ export default function PostItem({ post, username, profilePicture }) {
                             color="#FFF"
                           />
                         </TouchableOpacity>
-                        <View style={styles.bottomControls}>
+                        <View style={{position: 'absolute', bottom: 10, left: 10, right: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10,}}>
                           <TouchableOpacity onPress={handleMute}>
                             <Ionicons
                               name={isMuted ? 'volume-mute' : 'volume-high'}
@@ -425,7 +428,7 @@ export default function PostItem({ post, username, profilePicture }) {
                         </View>
 
                         <Slider
-                          style={styles.slider}
+                          style={{position: 'absolute', bottom: 40, width: '100%', height: 20,}}
                           value={currentTime}
                           minimumValue={0}
                           maximumValue={videoDuration}
@@ -441,9 +444,9 @@ export default function PostItem({ post, username, profilePicture }) {
                       transparent={true}
                       onRequestClose={() => setIsVideoModalVisible(false)}
                     >
-                      <View style={styles.modalContainer}>
+                      <View style={stylesView.Modal}>
                         <Video
-                          style={styles.modalVideo}
+                          style={stylesMedia.MediaModal}
                           source={{ uri: post.videoUri }}
                           resizeMode="contain"
                           shouldPlay={true} 
@@ -454,7 +457,7 @@ export default function PostItem({ post, username, profilePicture }) {
                           }}
                         />
                         <TouchableOpacity
-                          style={styles.X_CloseButton}
+                          style={stylesButton.X_CloseButton}
                           onPress={() => {
                             handlePlayPause();
                             setIsVideoModalVisible(false);
@@ -467,14 +470,12 @@ export default function PostItem({ post, username, profilePicture }) {
                 </>
               )}
               {post.replyPostID && post.postType === "Reply" && (
-                <PostReplyItemComponent replyPostID={post.replyPostID
-
-                } />
+                <PostReplyItemComponent replyPostID={post.replyPostID} />
               )}
 
-              <View style={styles.footer}>
-                <View style={styles.iconContainer}>
-                  <View style={styles.iconAndTextContainer}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10,}}>
+                <View style={{flexDirection: 'row', gap: 15,}}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity onPress={handleLike}>
                       <Ionicons
                         name={liked ? 'heart' : 'heart-outline'}
@@ -483,40 +484,40 @@ export default function PostItem({ post, username, profilePicture }) {
                       />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>{likesCount}</Text>
+                      <Text style={[stylesText.whiteMedium, { verticalAlign: 'bottom',fontSize: 20,}]}>{likesCount}</Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={styles.iconAndTextContainer}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity onPress={toggleModal}>
                       <Ionicons name="arrow-redo-outline" size={26} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>{replysCount}</Text>
+                      <Text style={[stylesText.whiteMedium, { verticalAlign: 'bottom',fontSize: 20,}]}>{replysCount}</Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={styles.iconAndTextContainer}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity onPress={CommentToggleModal}>
                       <Ionicons name="chatbubble-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>{commentCount}</Text>
+                      <Text style={[stylesText.whiteMedium, { verticalAlign: 'bottom',fontSize: 20,}]}>{commentCount}</Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={styles.iconAndTextContainer}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity onPress={handleSave}>
                       <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={24} color="#FFF" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.iconText}>{saveCount}</Text>
+                      <Text style={[stylesText.whiteMedium, { verticalAlign: 'bottom',fontSize: 20,}]}>{saveCount}</Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={styles.iconAndTextContainer}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity>
                       <Ionicons name="share-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.iconAndTextContainer}>
+                  <View style={{flexDirection: 'row', gap: 10,}}>
                     <TouchableOpacity>
                       <Ionicons name="ellipsis-horizontal-outline" size={24} color="#FFF" />
                     </TouchableOpacity>
@@ -542,143 +543,3 @@ export default function PostItem({ post, username, profilePicture }) {
 }
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  postContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    borderBlockColor:'rgba(255, 255, 255, 0.6)',
-    borderBottomWidth:0.5,
-
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 15,
-  },
-  postContent: {
-    flex: 1,
-  },
-  usernameContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#888',
-  },
-  postText: {
-    fontSize: 14,
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  postImage: {
-    width: '100%',
-    height: 350,
-    borderRadius: 20,
-    marginBottom: 10,
-  },
-  videoWrapper: {
-    backgroundColor: '#000',
-    borderRadius: 20,
-    marginBottom: 10,
-    position: 'relative',
-  },
-  postVideo: {
-    width: '100%',
-    borderRadius: 20,
-    height: 350,
-  },
-  playPauseButton: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
-    zIndex: 2,
-  },
-  handleDownloadButton: {
-    position: 'absolute',
-    top: '10%',
-    left: '95%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
-    zIndex: 2,
-  },
-  bottomControls: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    right: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  slider: {
-    position: 'absolute',
-    bottom: 40,
-    width: '100%',
-    height: 20,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    flexDirection: 'row',
-    gap: 15,
-  },
-  iconAndTextContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  iconText: {
-    color: '#FFF',
-    fontSize: 20,
-    verticalAlign: 'bottom',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  X_CloseButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-  },
-  modalImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  modalVideo: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Yarı şeffaf bir arka plan
-    },
-
-
-
-
-
-
-
-});

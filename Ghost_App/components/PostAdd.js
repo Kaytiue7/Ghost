@@ -9,7 +9,12 @@ import * as ImagePicker from 'expo-image-picker';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import styles from '../styles/_uploadPostStyle';
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
+
 const PostAddComponent = ({ toggleModal }) => {
     const [text, setText] = useState('');
     const [imageUri, setImageUri] = useState(null);
@@ -163,25 +168,25 @@ const PostAddComponent = ({ toggleModal }) => {
   
     return (
         <Modal transparent animationType="slide">
-          <View style={styles.modalBackground}>
+          <View style={stylesView.ModalBackground}>
           <TouchableOpacity
-            style={styles.modalCloseButton}
+            style={stylesButton.X_CloseButton}
             onPress={toggleModal} >
             <Ionicons name="close" size={40} color="#FFF" />
           </TouchableOpacity>
 
-          <View style={styles.modalContent}>
-            <View style={styles.profileContainer}>
+          <View style={stylesView.PopOutModal}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 source={{ uri: profileImage }}
-                style={styles.profileImage}
+                style={stylesMedia.ProfilePicture}
               />
-              <Text style={styles.username}>@{username}</Text>
+              <Text style={stylesText.whiteMedium}>@{username}</Text>
             </View>
   
-            <View style={styles.inputContainer}>
+            <View>
               <TextInput
-                style={styles.StandartInputStyle}
+                style={stylesInput.StandartInputStyle}
                 placeholder="Bir şeyler yazın..."
                 placeholderTextColor="#FFFFFF"
                 value={text}
@@ -191,13 +196,13 @@ const PostAddComponent = ({ toggleModal }) => {
   
             {imageUri && (
               <View>
-                <Image source={{ uri: imageUri }} style={styles.MainImage} />
+                <Image source={{ uri: imageUri }} style={stylesMedia.Media} />
               </View>
             )}
             
             {videoUri && (
               <View>
-                <Video style={styles.MainImage}
+                <Video style={stylesMedia.Media}
                   source={{ uri: videoUri }} 
                   isLooping
                   resizeMode="contain"
@@ -206,26 +211,24 @@ const PostAddComponent = ({ toggleModal }) => {
               </View>
             )}
   
-            <View style={styles.imagePickerContainer}>
-              <TouchableOpacity onPress={pickImage} style={styles.GreenCirclePickerButton}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+              <TouchableOpacity onPress={pickImage} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="image-outline" size={30} color="white" />
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={pickVideo} style={styles.GreenCirclePickerButton}>
+              <TouchableOpacity onPress={pickVideo} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="videocam-outline" size={30} color="white" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={pickCamera} style={styles.GreenCirclePickerButton}>
+              <TouchableOpacity onPress={pickCamera} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="camera-outline" size={30} color="white" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={savePost} style={styles.sendButton}>
-                <Text style={styles.sendButtonText}>Paylaş</Text>
+            <TouchableOpacity onPress={savePost} style={stylesButton.BlueStandartButton}>
+                <Text style={stylesText.whiteSmall}>Paylaş</Text>
               </TouchableOpacity>
             </View>
-          </View>
-    
-          
+          </View> 
         </Modal>
       );
     };

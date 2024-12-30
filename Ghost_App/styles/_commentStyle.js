@@ -1,11 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-    ModalBackground: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        
-      },
+   
       modalContent: {
         width: '100%',
         height: '80%',
@@ -33,12 +29,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
       },
-      dragHandle: {
-        width: 60,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#CCC',
-      },
       headerContainer: {
         backgroundColor: '#FFF',
         paddingVertical: 5,
@@ -61,41 +51,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         paddingVertical: 2,
         backgroundColor: '#333',
-        
-      },
-
-      BlackInputStyle: {
-        backgroundColor: '#444',
-        color: '#FFF',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        height: 40,
-        fontSize: 16,
-        flex: 1,  
-      },
-      
-      BlueCirlePickerButon: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#007bff',
-        padding: 10,
-        marginHorizontal:10,
-        borderRadius: 20,
-        width: 40,  // Sabit genişlik
-        height: 40, // Sabit yükseklik
       },
       modalCloseButton: {
         position: 'absolute',
         top: 40,
         right: 20,
-      },
-      GreenCirclePickerButtonMini: {
-        width: 40,
-        height: 40,
-        borderRadius: 25,
-        backgroundColor: '#4CAF50',
-        justifyContent: 'center',
-        alignItems: 'center',
       },
       profileContainer: {
         flexDirection: 'row',
@@ -111,12 +71,6 @@ const styles = StyleSheet.create({
         color:'#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
-      },
-      MediaStyle: {
-        width: '100%',
-        height: 300,
-        marginBottom: 10,
-        borderRadius:10,
       },
       commentContainer: {
         flexDirection: 'row',

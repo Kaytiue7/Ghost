@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator,Image } from 'react-native';
-import { firestore } from '../firebase/firebaseConfig'; // Firebase config
+import { Video } from 'expo-av';
 
 import * as SecureStore from 'expo-secure-store';
 
 import * as ImagePicker from 'expo-image-picker';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Video } from 'expo-av';
+
+import { firestore } from '../firebase/firebaseConfig';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { serverTimestamp } from 'firebase/firestore';
+
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
+
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 import PostItem from './PostItem';
-import styles from '../styles/_commentStyle';
-import tailwind from 'tailwind-react-native-classnames';
+
 
 
 const CommentModal = ({ CommentToggleModal, postId }) => {
@@ -216,24 +224,25 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
     );
   };
 
+
   return (
     <Modal transparent animationType="slide" visible={true}>
-      <View style={styles.ModalBackground}>
-        <TouchableOpacity onPress={CommentToggleModal} style={styles.overlay} activeOpacity={1} />
+      <View style={stylesView.CommentModalBackground}>
+        <TouchableOpacity onPress={CommentToggleModal} style={{flex: 1, backgroundColor:'transparent'}} activeOpacity={1} />
 
-        <View className="w-full h-4/5 bg-gray-800 rounded-t-3xl overflow-hidden" >
-          <View className='items-center py-2 bg-white rounded-t-3xl'>
-            <TouchableOpacity style={styles.dragHandle} onPress={CommentToggleModal} />
+        <View style={{width: '100%', height: '80%', backgroundColor: '#222', borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden'}}>
+          <View style={{alignItems: 'center', paddingVertical: 5, backgroundColor: '#FFF', borderTopLeftRadius: 30, borderTopRightRadius: 30}}>
+            <TouchableOpacity style={{width: 60, height: 6, borderRadius: 3, backgroundColor: '#CCC',}} onPress={CommentToggleModal} />
           </View>
 
-          <View className='bg-white py-2 items-center justify-center'>
-            <Text style={styles.headerText}>Yorumlar</Text>
+          <View style={{backgroundColor: '#FFF', paddingVertical: 5, alignItems: 'center', justifyContent: 'center',}}>
+            <Text style={stylesText.blackLarge}>Yorumlar</Text>
           </View>
 
           {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
+            <ActivityIndicator size="large" color="#0000ff"/>
           ) : (
-            <View className='flex-1 bg-gray-900 border border-black'>
+            <View style={{flex: 1,  backgroundColor: '#111',  borderWidth:1, borderColor:'#000'}}>
               <FlatList
                 data={comments}
                 renderItem={renderPost}
@@ -245,38 +254,39 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
               />
             </View>
                 )}
-          <View className='flex-col p-3 bg-gray-700'>
-            <View className='flex-row items-center justify-between my-2'>
+          <View style={stylesView.CommentModal}>
+            <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginVertical: 5 }}>
             <Image
               source={{
                 uri: userData && userData.profilePicture
                   ? userData.profilePicture
                   : 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png',
               }}
-              style={styles.ProfilePictureMini}
+              style={stylesMedia.ProfilePictureMini}
 />
               <TextInput
                 value={commentText}
                 onChangeText={setCommentText}
                 placeholder="Yorum Ekle..."
                 placeholderTextColor="#aaa"
-                style={styles.BlackInputStyle}
+                style={stylesInput.BlackInputStyle}
               />
-              <TouchableOpacity onPress={savePost} style={styles.BlueCirlePickerButon}>
+              <TouchableOpacity onPress={savePost} style={stylesButton.BlueCirlePickerButon}>
                 <Ionicons name="send" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
 
             {imageUri && (
               <View>
-                <Image source={{ uri: imageUri }} style={styles.MediaStyle} />
+
+                <Image source={{ uri: imageUri }} style={stylesMedia.Media} />
               </View>
             )}
 
             {videoUri && (
               <View>
                 <Video
-                  style={styles.MediaStyle}
+                  style={stylesMedia.Media}
                   source={{ uri: videoUri }}
                   isLooping
                   resizeMode="contain"
@@ -287,15 +297,15 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
 
             <View style={{flexDirection:'row',paddingBottom:5,justifyContent:'space-evenly'}}>
 
-              <TouchableOpacity onPress={pickImage} style={styles.GreenCirclePickerButtonMini}>
+              <TouchableOpacity onPress={pickImage} style={stylesButton.GreenCirclePickerButtonMini}>
                 <Ionicons name="image-outline" size={25} color="white" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={pickVideo} style={styles.GreenCirclePickerButtonMini}>
+              <TouchableOpacity onPress={pickVideo} style={stylesButton.GreenCirclePickerButtonMini}>
                 <Ionicons name="videocam-outline" size={25} color="white" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={pickCamera} style={styles.GreenCirclePickerButtonMini}>
+              <TouchableOpacity onPress={pickCamera} style={stylesButton.GreenCirclePickerButtonMini}>
                 <Ionicons name="camera-outline" size={25} color="white" />
               </TouchableOpacity>
             </View>
@@ -306,4 +316,4 @@ const CommentModal = ({ CommentToggleModal, postId }) => {
   );
 };
 
-export default CommentModal;
+export default CommentModal;  

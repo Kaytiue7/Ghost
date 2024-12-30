@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import {View, Text, Image, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Modal,} from 'react-native';
 import { Video } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -20,6 +11,12 @@ import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import * as Permissions from "expo-permissions";
 import Toast from 'react-native-toast-message'; 
+
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
 
 const CommentList = ({ postId }) => {
   const [comments, setComments] = useState([]);
@@ -258,7 +255,7 @@ const CommentList = ({ postId }) => {
     return (
       <View style={styles.postContainer}>
         <Image
-          style={styles.profileImage}
+          style={stylesMedia.ProfilePictureMini}
           source={
             post.profilePicture
               ? { uri: post.profilePicture }
