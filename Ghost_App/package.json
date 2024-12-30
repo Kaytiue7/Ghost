@@ -40,7 +40,8 @@
     "react-native-svg": "^15.9.0",
     "react-native-toast-message": "^2.2.1",
     "react-native-vector-icons": "^10.2.0",
-    "tailwind-react-native-classnames": "^3.0.1"
+    "tailwind-react-native-classnames": "^3.0.1",
+    "expo-font": "~13.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

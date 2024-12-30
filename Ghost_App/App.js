@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { View, ActivityIndicator, ImageBackground } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as SecureStore from 'expo-secure-store';
+import * as Font from 'expo-font';  // Font modülünü ekledik
 
 import MainContainer from './navigation/MainContainer';
 import UserLoginType from './pages/UserLoginType';
@@ -12,14 +13,33 @@ import AddProfilePicturePage from './pages/AddProfilePicture';
 import EditUserProfilePage from './pages/EditUserProfile';
 import ForeingAccountPage from './pages/ForeingAccount';
 
+
+
+
 import { firestore } from './firebase/firebaseConfig';
 
 const Stack = createStackNavigator();
 
 export default function App() {
     const [initialRouteName, setInitialRouteName] = useState(null);
+    const [fontLoaded, setFontLoaded] = useState(false);  // Font yüklendimi kontrol edeceğiz
 
     useEffect(() => {
+        const loadFonts = async () => {
+            try {
+                await Font.loadAsync({
+                    'WorkSans-Regular': require('./fonts/WorkSans-Regular.ttf'),
+                    'WorkSans-Light': require('./fonts/WorkSans-Light.ttf'),
+                    'WorkSans-SemiBold': require('./fonts/WorkSans-SemiBold.ttf'),
+                });
+                setFontLoaded(true);  // Fontlar yüklendiğinde state'i güncelle
+            } catch (error) {
+                console.error("Font yükleme hatası:", error);
+            }
+        };
+
+        loadFonts();
+
         const fetchInitialRoute = async () => {
             try {
                 const userId = await SecureStore.getItemAsync('userId');
@@ -53,8 +73,8 @@ export default function App() {
         fetchInitialRoute();
     }, []);
 
-    if (initialRouteName === null) {
-        return <LoadingScreen />;
+    if (!fontLoaded || initialRouteName === null) {
+        return <LoadingScreen />;  // Font yüklenene kadar bekleyin
     }
 
     return (
@@ -80,7 +100,7 @@ export default function App() {
                     component={AddProfilePicturePage}
                     options={{ headerShown: false }}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                     name="EditUserProfile"
                     component={EditUserProfilePage}
                     options={{ headerShown: false }}
@@ -98,7 +118,6 @@ export default function App() {
             </Stack.Navigator>
         </NavigationContainer>
     );
-    
 }
 
 function LoadingScreen() {

@@ -34,7 +34,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#000',
-      }
+      },
+      ReplyBackground: {
+        flexDirection: 'column',
+        backgroundColor: '#333',
+        borderRadius: 10,
+        padding: 10,
+        marginVertical: 20,
+    },
 });
 
 export default styles;

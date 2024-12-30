@@ -167,7 +167,7 @@ const PostAddComponent = ({ toggleModal }) => {
 
   
     return (
-        <Modal transparent animationType="slide">
+        <Modal transparent animationType="slide" onPress={toggleModal}>
           <View style={stylesView.ModalBackground}>
           <TouchableOpacity
             style={stylesButton.X_CloseButton}
@@ -224,7 +224,7 @@ const PostAddComponent = ({ toggleModal }) => {
                 <Ionicons name="camera-outline" size={30} color="white" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={savePost} style={stylesButton.BlueStandartButton}>
+              <TouchableOpacity onPress={savePost} style={stylesButton.BlueStandartButton}>
                 <Text style={stylesText.whiteSmall}>Paylaş</Text>
               </TouchableOpacity>
             </View>

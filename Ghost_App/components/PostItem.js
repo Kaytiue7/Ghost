@@ -26,7 +26,6 @@ import stylesMedia from '../styles2/media';
 import stylesText from '../styles2/text';
 import stylesView from '../styles2/view';
 
-
 export default function PostItem({ post, username, profilePicture }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); 
@@ -50,6 +49,8 @@ export default function PostItem({ post, username, profilePicture }) {
 
   const [userId, setUserId] = useState(null);
 
+  const navigation = useNavigation();
+
   useEffect(() => {
     const fetchUserId = async () => {
       const storedUserId = await SecureStore.getItemAsync('userId');
@@ -58,18 +59,6 @@ export default function PostItem({ post, username, profilePicture }) {
   
     fetchUserId();
   }, []);
-
-  const toggleModal = () => {
-    setIsReplyModalVisible(!isReplyModalVisible);
-    console.log(isReplyModalVisible);
-
-  };
-  const CommentToggleModal = () => {
-    setIsCommentModalVisible(!isCommentModalVisible);
-    console.log("isCommentModalVisible",isCommentModalVisible);
-  }
-  const navigation = useNavigation();
-
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -138,6 +127,36 @@ export default function PostItem({ post, username, profilePicture }) {
 
   }, [isFocused, post.id]);
 
+  // Sayfa odaktan çıkarsa videoyu durdur
+  useEffect(() => {
+    if (!isFocused && videoRef.current) {
+      videoRef.current.pauseAsync();
+      setIsPlaying(false);
+    }
+
+    if (showControls) {
+      hideControlsTimeout.current = setTimeout(() => setShowControls(false), 5000);
+    } else {
+      clearTimeout(hideControlsTimeout.current);
+    }
+
+    return () => {
+      clearTimeout(hideControlsTimeout.current);
+    };
+  }, [isFocused, showControls]);
+
+
+
+  const toggleModal = () => {
+    setIsReplyModalVisible(!isReplyModalVisible);
+    console.log(isReplyModalVisible);
+
+  };
+  const CommentToggleModal = () => {
+    setIsCommentModalVisible(!isCommentModalVisible);
+    console.log("isCommentModalVisible",isCommentModalVisible);
+  };
+
   const handleLike = async () => {
     try {
       const storedUserId = await SecureStore.getItemAsync('userId'); // Kullanıcı ID'sini alın.
@@ -177,7 +196,7 @@ export default function PostItem({ post, username, profilePicture }) {
     }
   };
 
-  handleSave = async () => {
+  const handleSave = async () => {
   try{
     const storedUserId = await SecureStore.getItemAsync('userId');
     if (!storedUserId) {
@@ -213,27 +232,6 @@ export default function PostItem({ post, username, profilePicture }) {
       console.error('Kaydetme işlemi sırasında hata oluştu:', error);
     }
   };
-    
-
-
-  // Sayfa odaktan çıkarsa videoyu durdur
-  useEffect(() => {
-    if (!isFocused && videoRef.current) {
-      videoRef.current.pauseAsync();
-      setIsPlaying(false);
-    }
-
-    if (showControls) {
-      hideControlsTimeout.current = setTimeout(() => setShowControls(false), 5000);
-    } else {
-      clearTimeout(hideControlsTimeout.current);
-    }
-
-    return () => {
-      clearTimeout(hideControlsTimeout.current);
-    };
-  }, [isFocused, showControls]);
-
   const handlePlayPause = async () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -314,6 +312,7 @@ export default function PostItem({ post, username, profilePicture }) {
       await videoRef.current.setPositionAsync(value);
     }
   };
+  
 
   const createdAt = post.createdAt?.seconds
     ? new Date(post.createdAt.seconds * 1000).toLocaleString()
@@ -330,14 +329,14 @@ export default function PostItem({ post, username, profilePicture }) {
             </TouchableOpacity>
             
             <View style={{flex:1}}>
-              <View style={{flexDirection: 'row',  justifyContent: 'space-between',alignItems:'center', marginBottom: 10}}>
+              <View style={{flexDirection: 'row',  justifyContent: 'space-between',alignItems:'center', marginBottom: 5}}>
               <TouchableOpacity>
-                <Text style={stylesText.whiteMedium} onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })}>@{username}</Text>
+                <Text style={[stylesText.whiteMedium,{fontFamily: 'WorkSans-SemiBold',}]} onPress={() => navigation.navigate(userId === post.userId ? 'Hesap' : 'ForeingAccount', { foreingUserId: post.userId })}>@{username}</Text>
               </TouchableOpacity>
                 <Text style={stylesText.whiteDarkVerySmall}>{createdAt}</Text>
               </View>
 
-              {post.text && <Text style={[stylesText.whiteSmall, { marginBottom: 10 }]}>{post.text}</Text>}
+              {post.text && <Text style={[stylesText.whiteSmall, { marginBottom: 10, fontFamily: 'WorkSans-Regular', }]}>{post.text}</Text>}
 
 
               {post.imageUri && (

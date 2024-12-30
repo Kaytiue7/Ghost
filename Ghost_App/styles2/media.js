@@ -22,10 +22,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,
       },
       MediaMini: {
-        width: '100%',
-        height: 200,
-        marginBottom: 10,
-        borderRadius: 10,
+        maxWidth: '33.33%',
+        backgroundColor:'#1c1c1c',
+        minWidth:100,
+        height: 100,
+        borderRadius: 5,
+        alignItems:'center',
       },
 
 

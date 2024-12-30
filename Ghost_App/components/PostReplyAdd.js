@@ -9,7 +9,12 @@ import * as ImagePicker from 'expo-image-picker';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import styles from '../styles/_uploadPostStyle';
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
+
 const PostReplyComponent = ({ toggleModal , postId }) => {
     const [text, setText] = useState('');
     const [imageUri, setImageUri] = useState(null);
@@ -35,6 +40,8 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
     const [timeoutId, setTimeoutId] = useState(null);
 
     const videoRef = React.useRef(null);
+
+
     const handlePlayPause = async () => {
       if (videoRef.current) {
         if (isPlaying) {
@@ -251,27 +258,27 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
 
   
     return (
-        <Modal transparent animationType="slide">
-          <View style={styles.modalBackground}>
+        <Modal transparent animationType="slide" onPress={toggleModal}>
+          <View style={stylesView.ModalBackground}>
           <TouchableOpacity
-            style={styles.modalCloseButton}
-            onPress={toggleModal} // Close modal on press
+            style={stylesButton.X_CloseButton}
+            onPress={toggleModal}
           >
             <Ionicons name="close" size={40} color="#FFF" />
           </TouchableOpacity>
 
-          <View style={styles.modalContent}>
-            <View style={styles.profileContainer}>
+          <View style={stylesView.PopOutModal}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 source={{ uri: profileImage }}
-                style={styles.profileImage}
+                style={stylesMedia.ProfilePicture}
               />
-              <Text style={styles.username}>@{username}</Text>
+              <Text style={stylesText.whiteMedium}>@{username}</Text>
             </View>
   
-            <View style={styles.inputContainer}>
+            <View>
               <TextInput
-                style={styles.StandartInputStyle}
+                style={stylesInput.StandartInputStyle}
                 placeholder="Bir şeyler yazın..."
                 placeholderTextColor="#FFFFFF"
                 value={text}
@@ -280,14 +287,14 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
             </View>
   
             {imageUri && (
-              <View style={styles.imagePreview}>
-                <Image source={{ uri: imageUri }} style={styles.MainImage} />
+              <View >
+                <Image source={{ uri: imageUri }} style={stylesMedia.Media} />
               </View>
             )}
             
             {videoUri && (
-              <View>
-                <Video style={styles.MainImage}
+              <View style={[stylesMedia.Media, {backgroundColor: '#000'}]}>
+                <Video style={stylesMedia.Media}
                   source={{ uri: videoUri }} 
                   isLooping
                   resizeMode="contain"
@@ -296,58 +303,57 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
               </View>
             )}
   
-            <View style={styles.imagePickerContainer}>
-              <TouchableOpacity onPress={pickImage} style={styles.GreenCirclePickerButton}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+              <TouchableOpacity onPress={pickImage} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="image-outline" size={30} color="white" />
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={pickVideo} style={styles.GreenCirclePickerButton}>
+              <TouchableOpacity onPress={pickVideo} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="videocam-outline" size={30} color="white" />
               </TouchableOpacity>
               
-              <TouchableOpacity onPress={pickCamera} style={styles.GreenCirclePickerButton}>
+              <TouchableOpacity onPress={pickCamera} style={stylesButton.GreenCirclePickerButton}>
                 <Ionicons name="camera-outline" size={30} color="white" />
               </TouchableOpacity>
             </View>
 
  
-            <View style={styles.commentContainer}>
-              <View style={styles.commentHeader}>
-                <Image source={{ uri: replyProfilePicture || 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png' }} style={styles.commentProfileImage} />
+            <View style={stylesView.ReplyBackground}>
+              <View style={{flexDirection: 'row', alignItems: 'center',  marginBottom: 10}}>
+                <Image source={{ uri: replyProfilePicture || 'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png' }} style={stylesMedia.ProfilePictureMini} />
                 <View style={{justifyContent:'space-between', flexDirection:'row', width:'80%'}}>
-                  <Text style={styles.commentUsername}>{replyUsername} </Text>
-                  <Text style={styles.commentTimestamp}>
+                  <Text style={stylesText.whiteSmall}>@{replyUsername} </Text>
+                  <Text style={[stylesText.whiteDarkSmall, {fontSize: 11}]}>
                     {replyDate ? replyDate.toLocaleString() : ''}
                   </Text>
                  </View>
                </View>
-              <View style={styles.commentMain}>
+              <View style={{flexDirection: 'row', marginBottom: 10}}>
                 {replyImageUri &&(
-                  <View style={styles.commentView}>
-                    <Image source={{ uri: replyImageUri }} style={styles.commentImage} />
+                  <View style={stylesMedia.MediaMini}>
+                    <Image source={{ uri: replyImageUri }} style={{ width: '100%', height: '100%', borderRadius: 5, alignItems:'center', padding:5}} />
                   </View>
                   
                   )}
                   {replyVideoUri &&(
-                    <View style={styles.commentView}>
-                      <TouchableOpacity onPress={handleVideoPress} activeOpacity={1} style={styles.commentImage}>
+                    <View>
+                      <TouchableOpacity onPress={handleVideoPress} activeOpacity={1} style={stylesMedia.MediaMini}>
                         <Video 
                           ref={videoRef}
-                          style={styles.commentImage}
-                          source={{ uri: replyVideoUri }} // Burada videonuzun URL'si olmalı
+                          style={{ width: '100%', height: '100%', borderRadius: 5, alignItems:'center', padding:5}}
+                          source={{ uri: replyVideoUri }}
                           resizeMode="contain"
                           isLooping
-                          useNativeControls={false} // Varsayılan kontrolü gizle
-                          
+                          useNativeControls={false} 
                         />
                       </TouchableOpacity>
                       {showControls && (
-                        <View style={styles.replyVideoControl}>
-                          <TouchableOpacity onPress={handlePlayPause} style={styles.playPauseButton}>
+                        <View style={{flex: 1, backgroundColor: '#FFF', width:'100%', height:'100%',}}>
+                          <TouchableOpacity onPress={handlePlayPause} style={{position: 'absolute', alignSelf: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: 5, alignItems:'center', bottom:'10%', borderRadius: 50,}}>
                             <Ionicons name={isPlaying ? 'pause' : 'play'} size={12} color="#FFF" />
                           </TouchableOpacity>
 
-                          <TouchableOpacity onPress={handleExpand} style={styles.fullscreenButton}>
+                          <TouchableOpacity onPress={handleExpand} style={{position: 'absolute', bottom: '2%', left: '80%', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: 2, borderRadius: 50,}}>
                             <Ionicons name="expand" size={10} color="#FFF" />
                           </TouchableOpacity>
                         </View>
@@ -356,7 +362,7 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
                   )}
                 
                 {replyText &&(
-                  <Text style={styles.commentText}>{replyText}</Text>              
+                  <Text style={[stylesText.whiteSmall,{marginLeft:10}]}>{replyText}</Text>              
                 )}
                            
               </View>                  
@@ -365,8 +371,8 @@ const PostReplyComponent = ({ toggleModal , postId }) => {
 
  
 
-              <TouchableOpacity onPress={savePost} style={styles.sendButton}>
-                <Text style={styles.sendButtonText}>Paylaş</Text>
+              <TouchableOpacity onPress={savePost} style={stylesButton.BlueStandartButton}>
+                <Text style={stylesText.whiteSmall}>Paylaş</Text>
               </TouchableOpacity>
             </View>
           </View>
