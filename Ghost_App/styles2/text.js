@@ -61,34 +61,43 @@ const styles = StyleSheet.create({
   redLarge: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF0000', 
+    color: '#FF1700', 
   },
   redMedium: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FF0000',
+    color: '#FF1700',
   },
   redSmall: {
     fontSize: 14,
     fontWeight: 'normal',
-    color: '#FF0000',
+    color: '#FF1700',
   },
 
   // Yeşil renk stilleri
   greenLarge: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#00FF00', 
+    color: '#4CAF50', 
   },
   greenMedium: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#00FF00',
+    color: '#4CAF50',
   },
   greenSmall: {
     fontSize: 14,
     fontWeight: 'normal',
-    color: '#00FF00',
+    color: '#4CAF50',
+  },
+  labelNotFocused: {
+    color: '#888',
+      fontSize: 16,
+      marginBottom: 4,
+      marginLeft: 8,
+  },
+  labelfocused: {
+    color: '#246DDD',
   },
 });
 

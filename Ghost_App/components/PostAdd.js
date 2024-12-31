@@ -53,6 +53,7 @@ const PostAddComponent = ({ toggleModal }) => {
         const result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
+          aspect: null,
           quality: 1,
         });
     

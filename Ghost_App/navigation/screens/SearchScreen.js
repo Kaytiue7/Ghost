@@ -13,7 +13,7 @@ export default function SearchScreen({ navigation }) {
   const [userId, setUserId] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Kullanıcı ID'sini SecureStore'dan al
+
   useEffect(() => {
     const fetchUserId = async () => {
       try {
@@ -29,7 +29,6 @@ export default function SearchScreen({ navigation }) {
     fetchUserId();
   }, []);
 
-  // Kullanıcı listesini Firestore'dan al
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -39,7 +38,7 @@ export default function SearchScreen({ navigation }) {
           ...doc.data(),
         }));
         setUsers(userList);
-        setFilteredUsers(userList); // Başlangıçta tüm kullanıcılar gösterilir
+        setFilteredUsers(userList);
       } catch (error) {
         console.error("Kullanıcılar alınırken hata oluştu:", error);
       }
@@ -51,7 +50,7 @@ export default function SearchScreen({ navigation }) {
   // Arama filtresi
   useEffect(() => {
     if (search.trim() === "") {
-      setFilteredUsers(users); // Arama boşsa tüm kullanıcıları göster
+      //setFilteredUsers(users); // Arama boşsa tüm kullanıcıları gösterir sonrasında bu özellik belki eklenebilir
     } else {
       const filtered = users.filter(user =>
         user.username.toLowerCase().includes(search.toLowerCase())
@@ -80,7 +79,7 @@ export default function SearchScreen({ navigation }) {
         inputStyle={styles.searchBarInput}
         placeholderTextColor="#888"
         
-/>
+      />
 
       {search && (
         <TouchableOpacity

@@ -5,6 +5,7 @@ import PostItem from '../../components/PostItem';
 import * as SecureStore from 'expo-secure-store';
 import styles from '../../styles/_accountStyle';
 import { format } from 'date-fns';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AccountScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Postlar');
@@ -142,6 +143,12 @@ export default function AccountScreen({ navigation }) {
             source={{ uri: userData?.bannerPicture || 'https://via.placeholder.com/350x100' }}
             style={styles.coverImage}
           />
+          <TouchableOpacity
+            style={{ width: 30, height: 30, position: 'absolute', top: 10, right: 10,backgroundColor:'rgba(0, 0, 0, 0.6)',borderRadius: 15,justifyContent: 'center',alignItems: 'center', }}
+            onPress={() => navigation.navigate('SearchResults', {filterUserId:userId})}
+          >
+            <Ionicons name="search" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', width: '100%' }}>
           <View style={{ flexDirection: 'column', width: '60%' }}>

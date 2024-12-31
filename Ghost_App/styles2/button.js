@@ -52,6 +52,17 @@ const styles = StyleSheet.create({
         top: 20,
         right: 20,
     },
+    GreenCirclePickerButtonMega: {
+      width: 60,
+      height: 60,
+      borderRadius: 40,
+      backgroundColor: '#4CAF50',
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowRadius: 10,
+      elevation: 10,
+    },
     GreenCirclePickerButton: {
         width: 50,
         height: 50,
@@ -71,6 +82,42 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
       },
+
+
+      RedCirclePickerButtonMega: {
+        width: 60,
+        height: 60,
+        borderRadius: 40,
+        backgroundColor: '#FF1700',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowRadius: 10,
+        elevation: 10,
+      },
+      RedCirclePickerButton: {
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          backgroundColor: '#FF1700',
+          justifyContent: 'center',
+          alignItems: 'center',
+          shadowColor: '#000',
+          shadowRadius: 10,
+          elevation: 10,
+        },
+        RedCirclePickerButtonMini: {
+          width: 40,
+          height: 40,
+          borderRadius: 25,
+          backgroundColor: '#FF1700',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+
+
+
+
       BlueCirlePickerButon: {
         justifyContent: 'center',
         alignItems: 'center',

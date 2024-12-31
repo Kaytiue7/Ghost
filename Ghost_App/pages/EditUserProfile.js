@@ -6,6 +6,14 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as SecureStore from 'expo-secure-store';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+
+
+import stylesInput from '../styles2/input';
+import stylesButton from '../styles2/button';
+import stylesMedia from '../styles2/media';
+import stylesText from '../styles2/text';
+import stylesView from '../styles2/view';
+
 export default function EditProfile({ navigation }) {
   const [bannerUri, setBannerUri] = useState(null);
   const [profilePictureUri, setProfilePictureUri] = useState(null);
@@ -17,6 +25,8 @@ export default function EditProfile({ navigation }) {
   const [isFocusedBio, setIsFocusedBio] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState(null); // banner or profile
+
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -89,7 +99,7 @@ export default function EditProfile({ navigation }) {
         updates.bio = bio;
   
         await firestore.collection('Users').doc(userId).update(updates);
-        navigation.navigate('MainContainer');
+        navigation.goBack();
       } catch (error) {
         console.error('Error saving profile:', error);
       }
@@ -97,50 +107,50 @@ export default function EditProfile({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{flex:1, backgroundColor:'#101010'}}>
       <TouchableOpacity activeOpacity={0.5} onPress={() => handleImagePress('banner')}>
         <Image
-          style={styles.banner}
+          style={{ width: '100%', height: 150, backgroundColor: '#246ddd' }}
           source={{ uri: bannerUri || 'https://via.placeholder.com/800x300' }}
         />
       </TouchableOpacity>
       <TouchableOpacity activeOpacity={0.8} onPress={() => handleImagePress('profile')}>
         <Image
-          style={styles.profilePicture}
+          style={[stylesMedia.ProfilePictureMega, { marginTop: -50, marginLeft: 20,borderColor: '#fff', borderWidth: 1.5,}]}
           source={{ uri: profilePictureUri || 'https://via.placeholder.com/150' }}
         />
       </TouchableOpacity>
 
       <Modal transparent={true} visible={modalVisible} animationType="fade">
         <TouchableOpacity
-          style={styles.modalOverlay}
+          style={stylesView.ModalBackground}
           activeOpacity={1}
           onPress={() => setModalVisible(false)}
         >
-          <View style={styles.modalContent}>
-            <View style={styles.modalAction}>
+          <View style={[stylesView.PopOutModal,{flexDirection:'row', justifyContent:'space-evenly'}]}>
+            <View style={{flexDirection: 'column', alignItems: 'center',}}>
               <TouchableOpacity
-                style={styles.iconCircle}
+                style={stylesButton.GreenCirclePickerButtonMega}
                 onPress={() => pickImage(currentImage === 'banner' ? setBannerUri : setProfilePictureUri)}
               >
                 <Ionicons name="image-outline" size={25} color="#FFF" />
               </TouchableOpacity>
-              <Text style={styles.modalButtonText}>Galeriden Seç</Text>
+              <Text style={[stylesText.greenSmall,{marginTop:5}]}>Galeriden Seç</Text>
             </View>
 
-            <View style={styles.modalAction}>
-              <TouchableOpacity style={styles.iconCircleRed} onPress={handleRemoveImage}>
+            <View style={{flexDirection: 'column', alignItems: 'center',}}>
+              <TouchableOpacity style={stylesButton.RedCirclePickerButtonMega} onPress={handleRemoveImage}>
                 <Ionicons name="trash-outline" size={25} color="#FFF" />
               </TouchableOpacity>
-              <Text style={styles.modalButtonTextRed}>Resmi Sil</Text>
+              <Text style={[stylesText.redSmall,{marginTop:5}]}>Resmi Sil</Text>
             </View>
           </View>
         </TouchableOpacity>
       </Modal>
 
-      <View style={styles.inputContainer}>
-        <Text style={[styles.label, isFocused && styles.labelfocused]}>İsim</Text>
-        <View style={[styles.InputBorderStyle, isFocused && styles.InputFocusedBorderStyle]}>
+      <View style={{paddingHorizontal: 16,}}>
+        <Text style={[stylesText.labelNotFocused, isFocused && stylesText.labelfocused]}>İsim</Text>
+        <View style={[stylesInput.InputNotFocusedBorderStyle, isFocused && stylesInput.InputFocusedBorderStyle]}>
           <TextInput
             style={styles.BorderedInputStyle}
             placeholder="Yazınız"
@@ -152,8 +162,8 @@ export default function EditProfile({ navigation }) {
           />
         </View>
 
-        <Text style={[styles.label, isFocusedBio && styles.labelfocused]}>Biyografi</Text>
-        <View style={[styles.InputBorderStyle, isFocusedBio && styles.InputFocusedBorderStyle]}>
+        <Text style={[stylesText.labelNotFocused, isFocusedBio && stylesText.labelfocused]}>Biyografi</Text>
+        <View style={[stylesInput.InputNotFocusedBorderStyle, isFocusedBio && stylesInput.InputFocusedBorderStyle]}>
           <TextInput
             style={[styles.BorderedInputStyle, { height: 100, textAlignVertical: 'top' }]}
             placeholder="Biyografi"
@@ -167,9 +177,16 @@ export default function EditProfile({ navigation }) {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.BlueStandartButton} onPress={saveChanges}>
-        <Text style={styles.saveButtonText}>Kaydet</Text>
-      </TouchableOpacity>
+      <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
+        <TouchableOpacity style={stylesButton.OrangeStandartButton} onPress={navigation.goBack}>
+          <Text style={styles.saveButtonText}>Geç</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.BlueStandartButton} onPress={saveChanges}>
+          <Text style={styles.saveButtonText}>Kaydet</Text>
+        </TouchableOpacity>
+        </View>
+      
     </View>
   );
 }

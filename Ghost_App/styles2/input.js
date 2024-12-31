@@ -37,12 +37,7 @@ const styles = StyleSheet.create({
       },
 
       //Focus halinde renk değiştiren dış border içeren input
-      InputBorderStyle: {
-        borderWidth: 2,
-        borderColor: '#888',
-        borderRadius: 8,
-        marginBottom: 10,
-      },
+     
       BorderedInputStyle: {
         backgroundColor: 'transparent',
         color: '#FFF',
@@ -50,6 +45,12 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontSize: 16,
         
+      },
+      InputNotFocusedBorderStyle: {
+        borderWidth: 2,
+        borderColor: '#888',
+        borderRadius: 8,
+        marginBottom: 10,
       },
       InputFocusedBorderStyle: {
         borderColor: '#246DDD',

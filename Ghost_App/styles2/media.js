@@ -30,7 +30,12 @@ const styles = StyleSheet.create({
         alignItems:'center',
       },
 
-
+      ProfilePictureMega: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginRight: 20,
+      },
       ProfilePictureMax: {
         width: 60,
         height: 60,
