@@ -42,6 +42,13 @@ const styles = StyleSheet.create({
         padding: 10,
         marginVertical: 20,
     },
+    HeaderView: {
+      backgroundColor: '#fff',
+      shadowOpacity: 1,
+      shadowColor: '#000',
+      elevation: 10,
+      height:32,
+    },
 });
 
 export default styles;

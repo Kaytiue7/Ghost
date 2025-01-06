@@ -8,6 +8,11 @@ import { serverTimestamp, where } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { useRoute } from '@react-navigation/native';
 
+import { Ionicons } from '@expo/vector-icons';
+
+
+import stylesView from '../styles2/view';
+
 
 export default function ForeingAccount({navigation}) {
   const [activeTab, setActiveTab] = useState('Postlar'); 
@@ -231,8 +236,10 @@ export default function ForeingAccount({navigation}) {
       />
     );
   };
+
   return (
     <View style={styles.container}>
+      <View style={stylesView.HeaderView} />
       <ScrollView>
         {/* Kapak Fotoğrafı */}
         <View style={styles.coverPhoto}>
@@ -240,6 +247,12 @@ export default function ForeingAccount({navigation}) {
             source={{ uri: userData && userData.bannerPicture ? userData.bannerPicture : 'https://via.placeholder.com/350x100' }}
             style={styles.coverImage}
           />
+          <TouchableOpacity
+            style={{ width: 30, height: 30, position: 'absolute', top: 10, right: 10,backgroundColor:'rgba(0, 0, 0, 0.6)',borderRadius: 15,justifyContent: 'center',alignItems: 'center', }}
+            onPress={() =>  navigation.navigate('SearchResults', { filterUserId: userData.id })}
+          >
+            <Ionicons name="search" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
 
         {/* Profil Detayları */}
